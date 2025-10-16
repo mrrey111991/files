@@ -194,3 +194,77 @@ Error: Process completed with exit code 1.
 
 
 
+
+#18 [stage-1  4/12] RUN set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*
+#18 0.266 + mkdir -p /etc/apt/keyrings
+#18 0.275 + curl -fsSL https://packages.microsoft.com/keys/microsoft.asc
+#18 0.275 + gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg
+#18 0.413 + echo deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main
+#18 0.416 + apt-get update
+#18 0.604 Get:1 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3,600 B]
+#18 0.694 Get:2 https://packages.microsoft.com/ubuntu/24.04/prod noble/main all Packages [643 B]
+#18 0.711 Get:3 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [62.6 kB]
+#18 1.303 Get:4 https://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#18 1.425 Get:5 https://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#18 2.378 Get:6 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2,512 kB]
+#18 2.607 Get:7 https://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#18 2.918 Get:8 https://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#18 3.230 Get:9 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#18 3.580 Get:10 https://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#18 3.653 Get:11 https://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1,808 kB]
+#18 3.663 Get:12 https://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1,531 kB]
+#18 3.762 Get:13 https://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1,141 kB]
+#18 3.901 Get:14 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [34.6 kB]
+#18 4.171 Get:15 https://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#18 5.671 Get:16 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [38.9 kB]
+#18 5.676 Get:17 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,644 kB]
+#18 5.882 Get:18 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,897 kB]
+#18 6.033 Get:19 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,928 kB]
+#18 6.897 Get:20 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
+#18 7.555 Get:21 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [33.9 kB]
+#18 7.675 Fetched 34.1 MB in 7s (4,722 kB/s)
+#18 7.675 Reading package lists...
+#18 8.930 + ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools
+#18 8.944 Reading package lists...
+#18 10.24 Building dependency tree...
+#18 10.53 Reading state information...
+#18 10.57 E: Unable to locate package mssql-tools
+#18 ERROR: process "/bin/sh -c set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+#17 [build 7/8] RUN ./gradlew build --no-daemon
+#17 CANCELED
+------
+ > [stage-1  4/12] RUN set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*:
+5.676 Get:17 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,644 kB]
+5.882 Get:18 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,897 kB]
+6.033 Get:19 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,928 kB]
+6.897 Get:20 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
+7.555 Get:21 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [33.9 kB]
+10.53 Reading state information...
+10.57 E: Unable to locate package mssql-tools
+------
+ 1 warning found (use docker --debug to expand):
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+Dockerfile:44
+--------------------
+  43 |     # Add Microsoft GPG key and repository for MSSQL tools
+  44 | >>> RUN set -eux; \
+  45 | >>>    mkdir -p /etc/apt/keyrings; \
+  46 | >>>    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+  47 | >>>        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
+  48 | >>>    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" \
+  49 | >>> > /etc/apt/sources.list.d/mssql-release.list; \
+  50 | >>>    apt-get update; \
+  51 | >>>    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools; \
+  52 | >>>    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd; \
+  53 | >>>    apt-get clean; \
+  54 | >>>    rm -rf /var/lib/apt/lists/*
+  55 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+Error: Process completed with exit code 1.
+
+
+
+
+
+
