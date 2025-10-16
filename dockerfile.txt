@@ -146,6 +146,11 @@ COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
 # --- Permissions and runtime setup ---
 RUN chmod +x $TOMCAT_HOME/bin/*.sh && mkdir -p $TOMCAT_HOME/cmd
 
+EXPOSE 8080
+CMD ["fish-startup.sh"]
+
+
+
 
 
 
@@ -187,7 +192,5 @@ ERROR: failed to build: failed to solve: process "/bin/sh -c curl -fsSL https://
 Error: Process completed with exit code 1.
 
 
-EXPOSE 8080
-CMD ["fish-startup.sh"]
 
 
