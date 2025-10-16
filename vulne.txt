@@ -1,3 +1,13 @@
+CRIT
+libssl3t64 3.0.13-0ubuntu3.5
+libc6 2.39-0ubuntu8.5
+locales 2.39-0ubuntu8.5
+dpkg 1.22.6ubuntu6.1
+openssl 3.0.13-0ubuntu3.5
+libsqlite3-0 3.45.1-1ubuntu2.4
+libc-bin 2.39-0ubuntu8.5
+sqlite3 3.45.1-1ubuntu2.4
+
 HIGH
 libssl3t64 3.0.13-0ubuntu3.6 - CVE-2024-41996
 libexpat1 2.6.1-2ubuntu0.3 - CVE-2025-59375
@@ -432,6 +442,7 @@ catalina.sh run
 
 echo
 echo "####################### Done"
+
 
 
 
