@@ -36,3 +36,67 @@ Description
 A flaw in curl's cookie handling logic can be triggered under specific conditions involving secure attributes and path comparisons. First, A cookie is set using the `secure` keyword for `https://target`. Second, curl is redirected to or otherwise made to speak with `http://target` (same hostname, but using clear text HTTP) using the same cookie set. Third, the same cookie name is set - but with just a slash as path (`path='/'`). Since this site is not secure, the cookie should just be ignored. Finally, a bug in the path comparison logic makes curl read outside a heap buffer boundary. This bug either causes a crash or it potentially makes the comparison come to the wrong conclusion and lets the clear-text site override the contents of the secure cookie, contrary to expectations and depending on the memory contents immediately following the single-byte allocation that holds the path. The presumed and correct behaviour would be to plainly ignore the second set of the cookie since it was already set as secure on a secure host so overriding it on an insecure host should not be okay. It affects curl versions 7.31.0 through 8.15.0.
 Publication Date
 12/9/2025
+
+
+
+
+
+
+
+#12 39.70 E: Unable to locate package build-essential
+#12 39.70 E: Unable to locate package pkg-config
+#12 39.70 E: Unable to locate package libssl-dev
+#12 39.70 E: Unable to locate package zlib1g-dev
+#12 39.70 E: Unable to locate package libnghttp2-dev
+#12 39.70 E: Unable to locate package libpsl-dev
+#12 39.70 E: Unable to locate package libidn2-0-dev
+#12 ERROR: process "/bin/sh -c set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j\"$(nproc)\";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+
+#16 [build 7/8] RUN ./gradlew build --no-daemon
+#16 CANCELED
+------
+ > [stage-1  2/13] RUN set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-${CVER}.tar.xz";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j"$(nproc)";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*:
+39.68 Reading package lists...
+39.69 Building dependency tree...
+39.70 Reading state information...
+39.70 E: Unable to locate package build-essential
+39.70 E: Unable to locate package pkg-config
+39.70 E: Unable to locate package libssl-dev
+39.70 E: Unable to locate package zlib1g-dev
+39.70 E: Unable to locate package libnghttp2-dev
+39.70 E: Unable to locate package libpsl-dev
+39.70 E: Unable to locate package libidn2-0-dev
+------
+
+ 1 warning found (use docker --debug to expand):
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+Dockerfile:13
+--------------------
+  12 |     FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.44-jdk21
+  13 | >>> RUN set -eux; \
+  14 | >>>    apt-get update; \
+  15 | >>>    apt-get install -y --no-install-recommends build-essential ca-certificates \
+  16 | >>>        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev \
+  17 | >>>        gnupg wget; \
+  18 | >>>    apt-get purge -y curl libcurl4t64 || true; \
+  19 | >>>    CVER=8.16.0; \
+  20 | >>>    wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-${CVER}.tar.xz"; \
+  21 | >>>    tar -C /tmp -xf /tmp/curl.tar.xz; \
+  22 | >>>    cd /tmp/curl-${CVER}; \
+  23 | >>>    ./configure \
+  24 | >>>      --with-openssl \
+  25 | >>>      --enable-http --enable-https --disable-ldap --disable-rtsp \
+  26 | >>>      --disable-dict --disable-telnet --disable-tftp --disable-pop3 \
+  27 | >>>      --disable-imap --disable-smb --disable-smtp; \
+  28 | >>>    make -j"$(nproc)"; \
+  29 | >>>    make install; \
+  30 | >>>    ldconfig; \
+  31 | >>>    cd /; rm -rf /tmp/curl*; \
+  32 | >>>    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev \
+  33 | >>>        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg; \
+  34 | >>>    apt-get autoremove -y; \
+  35 | >>>    rm -rf /var/lib/apt/lists/*
+  36 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j\"$(nproc)\";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+Error: Process completed with exit code 1.
