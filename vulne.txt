@@ -44,413 +44,101 @@ libexpat1 2.6.1-2ubuntu0.3 CVE-2025-59375
 libc-bin 2.39-0ubuntu8.6 CVE-2016-20013
 expat 2.6.1-2ubuntu0.3 CVE-2025-59375
 
-curl 8.5.0-2ubuntu10.6
-CVE-2025-9086
-
-Description
-A flaw in curl's cookie handling logic can be triggered under specific conditions involving secure attributes and path comparisons. First, A cookie is set using the `secure` keyword for `https://target`. Second, curl is redirected to or otherwise made to speak with `http://target` (same hostname, but using clear text HTTP) using the same cookie set. Third, the same cookie name is set - but with just a slash as path (`path='/'`). Since this site is not secure, the cookie should just be ignored. Finally, a bug in the path comparison logic makes curl read outside a heap buffer boundary. This bug either causes a crash or it potentially makes the comparison come to the wrong conclusion and lets the clear-text site override the contents of the secure cookie, contrary to expectations and depending on the memory contents immediately following the single-byte allocation that holds the path. The presumed and correct behaviour would be to plainly ignore the second set of the cookie since it was already set as secure on a secure host so overriding it on an insecure host should not be okay. It affects curl versions 7.31.0 through 8.15.0.
-Publication Date
-12/9/2025
-
-
-
-
-
-
-
-
-#12 39.70 E: Unable to locate package build-essential
-#12 39.70 E: Unable to locate package pkg-config
-#12 39.70 E: Unable to locate package libssl-dev
-#12 39.70 E: Unable to locate package zlib1g-dev
-#12 39.70 E: Unable to locate package libnghttp2-dev
-#12 39.70 E: Unable to locate package libpsl-dev
-#12 39.70 E: Unable to locate package libidn2-0-dev
-#12 ERROR: process "/bin/sh -c set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j\"$(nproc)\";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-
-#16 [build 7/8] RUN ./gradlew build --no-daemon
-#16 CANCELED
+#18 [stage-1  4/12] RUN set -eux;    VERSION_ID="$(. /etc/os-release; echo "${VERSION_ID}")";    CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME:-noble}")";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*
+#18 32.52 Ign:9 http://archive.ubuntu.com/ubuntu noble InRelease
+#18 32.52 Ign:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+#18 32.52 Ign:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+#18 33.52 Ign:9 http://archive.ubuntu.com/ubuntu noble InRelease
+#18 33.53 Ign:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+#18 33.53 Ign:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+#18 35.53 Ign:9 http://archive.ubuntu.com/ubuntu noble InRelease
+#18 35.53 Ign:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+#18 35.54 Ign:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+#18 39.73 Err:9 http://archive.ubuntu.com/ubuntu noble InRelease
+#18 39.73   Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out
+#18 39.73 Err:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+#18 39.73   Unable to connect to archive.ubuntu.com:80:
+#18 39.74 Err:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+#18 39.74   Unable to connect to archive.ubuntu.com:80:
+#18 39.74 Fetched 5,421 kB in 39s (138 kB/s)
+#18 39.74 Reading package lists...
+#18 39.92 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out
+#18 39.92 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to archive.ubuntu.com:80:
+#18 39.92 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to archive.ubuntu.com:80:
+#18 39.92 W: Some index files failed to download. They have been ignored, or old ones used instead.
+#18 39.92 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 39.92 + ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18
+#18 39.93 Reading package lists...
+#18 40.10 Building dependency tree...
+#18 40.11 Reading state information...
+#18 40.12 Some packages could not be installed. This may mean that you have
+#18 40.12 requested an impossible situation or if you are using the unstable
+#18 40.12 distribution that some required packages have not yet been created
+#18 40.12 or been moved out of Incoming.
+#18 40.12 The following information may help to resolve the situation:
+#18 40.12 
+#18 40.12 The following packages have unmet dependencies:
+#18 40.13  libodbc2 : Depends: libltdl7 (>= 2.4.7) but it is not installable
+#18 40.13  libodbcinst2 : Depends: libltdl7 (>= 2.4.7) but it is not installable
+#18 40.13 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+#18 40.13 E: Unable to correct problems, you have held broken packages.
+#18 ERROR: process "/bin/sh -c set -eux;    VERSION_ID=\"$(. /etc/os-release; echo \"${VERSION_ID}\")\";    CODENAME=\"$(. /etc/os-release; echo \"${VERSION_CODENAME:-noble}\")\";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
 ------
- > [stage-1  2/13] RUN set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-${CVER}.tar.xz";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j"$(nproc)";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*:
-39.68 Reading package lists...
-39.69 Building dependency tree...
-39.70 Reading state information...
-39.70 E: Unable to locate package build-essential
-39.70 E: Unable to locate package pkg-config
-39.70 E: Unable to locate package libssl-dev
-39.70 E: Unable to locate package zlib1g-dev
-39.70 E: Unable to locate package libnghttp2-dev
-39.70 E: Unable to locate package libpsl-dev
-39.70 E: Unable to locate package libidn2-0-dev
+ > [stage-1  4/12] RUN set -eux;    VERSION_ID="$(. /etc/os-release; echo "${VERSION_ID}")";    CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME:-noble}")";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*:
+40.13  libodbcinst2 : Depends: libltdl7 (>= 2.4.7) but it is not installable
+40.13 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
+40.13 E: Unable to correct problems, you have held broken packages.
 ------
 
  1 warning found (use docker --debug to expand):
  - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:13
+Dockerfile:36
 --------------------
-  12 |     FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.44-jdk21
-  13 | >>> RUN set -eux; \
-  14 | >>>    apt-get update; \
-  15 | >>>    apt-get install -y --no-install-recommends build-essential ca-certificates \
-  16 | >>>        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev \
-  17 | >>>        gnupg wget; \
-  18 | >>>    apt-get purge -y curl libcurl4t64 || true; \
-  19 | >>>    CVER=8.16.0; \
-  20 | >>>    wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-${CVER}.tar.xz"; \
-  21 | >>>    tar -C /tmp -xf /tmp/curl.tar.xz; \
-  22 | >>>    cd /tmp/curl-${CVER}; \
-  23 | >>>    ./configure \
-  24 | >>>      --with-openssl \
-  25 | >>>      --enable-http --enable-https --disable-ldap --disable-rtsp \
-  26 | >>>      --disable-dict --disable-telnet --disable-tftp --disable-pop3 \
-  27 | >>>      --disable-imap --disable-smb --disable-smtp; \
-  28 | >>>    make -j"$(nproc)"; \
-  29 | >>>    make install; \
-  30 | >>>    ldconfig; \
-  31 | >>>    cd /; rm -rf /tmp/curl*; \
-  32 | >>>    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev \
-  33 | >>>        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg; \
-  34 | >>>    apt-get autoremove -y; \
-  35 | >>>    rm -rf /var/lib/apt/lists/*
-  36 |     
+  35 |     # 3) Microsoft repo (Ubuntu, not Debian) just long enough to install tools18
+  36 | >>> RUN set -eux; \
+  37 | >>>    VERSION_ID="$(. /etc/os-release; echo "${VERSION_ID}")"; \
+  38 | >>>    CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME:-noble}")"; \
+  39 | >>>    mkdir -p /etc/apt/keyrings; \
+  40 | >>>    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+  41 | >>>      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
+  42 | >>>    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main" \
+  43 | >>> > /etc/apt/sources.list.d/mssql-release.list; \
+  44 | >>>    apt-get update; \
+  45 | >>>    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18; \
+  46 | >>>    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
+  47 | >>>    # Remove MS repo so it can’t pin older libs later
+  48 | >>>    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg; \
+  49 | >>>    apt-get clean; rm -rf /var/lib/apt/lists/*
+  50 |     # 4) Remove build-only packages & auto-remove deps to reduce attack surface
 --------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j\"$(nproc)\";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    VERSION_ID=\"$(. /etc/os-release; echo \"${VERSION_ID}\")\";    CODENAME=\"$(. /etc/os-release; echo \"${VERSION_CODENAME:-noble}\")\";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
 Error: Process completed with exit code 1.
-
-
-
-
-
-#15 [curlbuilder 2/2] RUN set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-8.16.0.tar.xz";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-8.16.0;     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j"$(nproc)";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*
-#15 39.59 Err:1 http://security.ubuntu.com/ubuntu noble-security InRelease
-#15 39.59   Could not connect to security.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.83), connection timed out
-#15 39.59 Err:2 http://archive.ubuntu.com/ubuntu noble InRelease
-#15 39.59   Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out
-#15 39.61 Err:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-#15 39.61   Unable to connect to archive.ubuntu.com:80:
-#15 39.61 Err:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-#15 39.61   Unable to connect to archive.ubuntu.com:80:
-#15 39.62 Reading package lists...
-#15 39.63 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out
-#15 39.63 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to archive.ubuntu.com:80:
-#15 39.63 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to archive.ubuntu.com:80:
-#15 39.63 W: Failed to fetch http://security.ubuntu.com/ubuntu/dists/noble-security/InRelease  Could not connect to security.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.83), connection timed out
-#15 39.63 W: Some index files failed to download. They have been ignored, or old ones used instead.
-#15 39.63 + apt-get install -y --no-install-recommends build-essential pkg-config ca-certificates libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg
-#15 39.63 Reading package lists...
-#15 39.64 Building dependency tree...
-#15 39.64 Reading state information...
-#15 39.64 Package ca-certificates is not available, but is referred to by another package.
-#15 39.64 This may mean that the package is missing, has been obsoleted, or
-#15 39.64 is only available from another source
-#15 39.64 
-#15 39.64 Package gnupg is not available, but is referred to by another package.
-#15 39.64 This may mean that the package is missing, has been obsoleted, or
-#15 39.64 is only available from another source
-#15 39.64 
-#15 39.64 E: Unable to locate package build-essential
-#15 39.64 E: Unable to locate package pkg-config
-#15 39.64 E: Package 'ca-certificates' has no installation candidate
-#15 39.64 E: Unable to locate package libssl-dev
-#15 39.64 E: Unable to locate package zlib1g-dev
-#15 39.64 E: Unable to locate package libnghttp2-dev
-#15 39.64 E: Unable to locate package libpsl-dev
-#15 39.64 E: Unable to locate package libidn2-0-dev
-#15 39.64 E: Unable to locate package wget
-#15 39.64 E: Package 'gnupg' has no installation candidate
-#15 ERROR: process "/bin/sh -c set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-${CVER};     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j\"$(nproc)\";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*" did not complete successfully: exit code: 100
-
-#12 [build 1/4] FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim@sha256:7072053847a8a05d7f3a14ebc778a90b38c50ce7e8f199382128a53385160688
-#12 CANCELED
-------
- > [curlbuilder 2/2] RUN set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-8.16.0.tar.xz";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-8.16.0;     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j"$(nproc)";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*:
-39.64 E: Unable to locate package build-essential
-39.64 E: Unable to locate package pkg-config
-39.64 E: Package 'ca-certificates' has no installation candidate
-39.64 E: Unable to locate package libssl-dev
-39.64 E: Unable to locate package zlib1g-dev
-39.64 E: Unable to locate package libnghttp2-dev
-39.64 E: Unable to locate package libpsl-dev
-39.64 E: Unable to locate package libidn2-0-dev
-39.64 E: Unable to locate package wget
-39.64 E: Package 'gnupg' has no installation candidate
-------
-Dockerfile:16
---------------------
-  15 |     
-  16 | >>> RUN set -eux; \
-  17 | >>>     sed -i 's|http://|https://|g' /etc/apt/sources.list; \
-  18 | >>>     apt-get update; \
-  19 | >>>     apt-get install -y --no-install-recommends \
-  20 | >>>         build-essential pkg-config ca-certificates \
-  21 | >>>         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev \
-  22 | >>>         wget gnupg; \
-  23 | >>>     wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-${CVER}.tar.xz"; \
-  24 | >>>     tar -C /tmp -xf /tmp/curl.tar.xz; \
-  25 | >>>     cd /tmp/curl-${CVER}; \
-  26 | >>>     ./configure \
-  27 | >>>       --with-openssl \
-  28 | >>>       --enable-http --enable-https \
-  29 | >>>       --disable-ldap --disable-rtsp \
-  30 | >>>       --disable-dict --disable-telnet --disable-tftp \
-  31 | >>>       --disable-pop3 --disable-imap --disable-smb --disable-smtp \
-  32 | >>>       --disable-manual; \
-  33 | >>>     make -j"$(nproc)"; \
-  34 | >>>     make install; \
-  35 | >>>     strip /usr/local/bin/curl; \
-  36 | >>>     cd /; rm -rf /tmp/curl*
-  37 |     
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-${CVER};     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j\"$(nproc)\";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*" did not complete successfully: exit code: 100
-Error: Process completed with exit code 1.
-
-
-
-
-
-#!/bin/bash
-
-escape_string_for_sed() {
- local escaped_string="$1"
- # Escape special characters
- escaped_string=$(sed -e 's/[\/&]/\\&/g' \
-                      -e 's/[$]/\\$/g' \
-                      -e 's/[]]/\\]/g' \
-                      -e 's/[[]/\\[/g' \
-                      -e 's/[.]/\\./g' \
-                      -e 's/[?]/\\?/g' \
-                      -e 's/[+]/\\+/g' \
-                      -e 's/[{]/\\{/g' \
-                      -e 's/[}]/\\}/g' \
-                      -e 's/[(]/\\(/g' \
-                      -e 's/[)]/\\)/g' \
-                      -e 's/[|]/\\|/g' \
-                      -e 's/[!]/\\!/g' <<< "$escaped_string")
- echo "$escaped_string"
-}
-
-echo
-echo "####################### Unpacking war file ....."
-echo
-
-unzip -q /usr/local/tomcat/webapps/fish.war -d /usr/local/tomcat/webapps/fish
-echo "Removing old war file ....."
-rm /usr/local/tomcat/webapps/fish.war
-echo
-
-##### CONFIG.JSN #####
-echo "####################### Updating config.jsn ....."
-echo
-configDes=/usr/local/tomcat/webapps/fish/WEB-INF/resources/config.jsn
-configDes2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/config.jsn
-
-sed -i "s,FIS_LDAP_URL,${FIS_LDAP_URL},g" $configDes
-sed -i "s,FIS_SITE_URL,${FIS_SITE_URL},g" $configDes
-sed -i "s/FIS_EMAIL_NOTIFY/${FIS_EMAIL_NOTIFY}/g" $configDes
-sed -i "s/FIS_EMAIL_STMP/${FIS_EMAIL_STMP}/g" $configDes
-sed -i "s/FIS_EMAIL_PORT/${FIS_EMAIL_PORT}/g" $configDes
-sed -i "s/FIS_LDAP_ENABLE/${FIS_LDAP_ENABLE}/g" $configDes
-sed -i "s/FIS_LDAP_DOMAIN/${FIS_LDAP_DOMAIN}/g" $configDes
-sed -i "s,FIS_LDAP_URL,${FIS_LDAP_URL},g" $configDes
-sed -i "s/FIS_LDAP_AUTH/${FIS_LDAP_AUTH}/g" $configDes
-sed -i "s/FIS_LDAP_CF/${FIS_LDAP_CF}/g" $configDes
-sed -i "s/FIS_LDAP_CNS/${FIS_LDAP_CNS}/g" $configDes
-sed -i "s/FIS_LDAP_ERRMSG_PREFIX/${FIS_LDAP_ERRMSG_PREFIX}/g" $configDes
-sed -i "s/FIS_LDAP_ERRMSG_SUFFIX/${FIS_LDAP_ERRMSG_SUFFIX}/g" $configDes
-sed -i "s/FIS_LDAP_USER/${FIS_LDAP_USER}/g" $configDes
-
-FISLDAPCRED=$(cat "${FIS_LDAP_CRED}")
-CLEANCRED=$(escape_string_for_sed "$FISLDAPCRED")
-sed -i "s/FIS_LDAP_CRED/${CLEANCRED}/g" $configDes
-
-sed -i "s/FIS_CYBERARK_ENABLE/${FIS_CYBERARK_ENABLE}/g" $configDes
-sed -i "s,FIS_CYBERARK_URL,${FIS_CYBERARK_URL},g" $configDes
-sed -i "s/FIS_CYBERARK_APPID/${FIS_CYBERARK_APPID}/g" $configDes
-sed -i "s/FIS_CYBERARK_SAFE/${FIS_CYBERARK_SAFE}/g" $configDes
-sed -i "s/FIS_CYBERARK_OBJ/${FIS_CYBERARK_OBJ}/g" $configDes
-sed -i "s/FIS_CYBERARK_USER/${FIS_CYBERARK_USER}/g" $configDes
-
-sed -i "s/FIS_KAFKA_ENABLE/${FIS_KAFKA_ENABLE}/g" $configDes
-sed -i "s,FIS_KAFKA_URL,${FIS_KAFKA_URL},g" $configDes
-sed -i "s/FIS_KAFKA_APPID/${FIS_KAFKA_APPID}/g" $configDes
-sed -i "s/FIS_KAFKA_APIKEY/${FIS_KAFKA_APIKEY}/g" $configDes
-
-FISKAFKASECRET=$(cat "${FIS_KAFKA_APISECRET}")
-KAFKACLEANSECRET=$(escape_string_for_sed "$FISKAFKASECRET")
-sed -i "s/FIS_KAFKA_APISECRET/${KAFKACLEANSECRET}/g" $configDes
-
-sed -i "s/FIS_USE_HOST_SCHEMA/${FIS_USE_HOST_SCHEMA}/g" $configDes
-sed -i "s/FIS_CUSTOM_SCHEMA/${FIS_CUSTOM_SCHEMA}/g" $configDes
-sed -i "s/FIS_USE_HOST_PORT/${FIS_USE_HOST_PORT}/g" $configDes
-sed -i "s/FIS_CUSTOM_PORT/${FIS_CUSTOM_PORT}/g" $configDes
-sed -i "s,FIS_TEMP_FOLDER,${FIS_TEMP_FOLDER},g" $configDes
-sed -i "s,FIS_UPLOAD_PATH,${FIS_UPLOAD_PATH},g" $configDes
-
-cp $configDes $configDes2
-
-echo "####################### config.jsn updated"
-#######################
-echo
-
-##### MYBATIS.XML AND DB BUILD SPECIFIC #####
-echo "####################### Updating mybatis.xml ....."
-echo
-
-mybatisDes=/usr/local/tomcat/webapps/fish/WEB-INF/resources/mybatis.xml
-mybatisDes2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/mybatis.xml
-
-sed -i "s/FIS_DB_HOST/${FIS_DB_HOST}/g" $mybatisDes
-sed -i "s/FIS_DB_NAME/${FIS_DB_NAME}/g" $mybatisDes
-sed -i "s/FIS_DB_PORT/${FIS_DB_PORT}/g" $mybatisDes
-if [ ! -z "${FIS_DB_INSTANCE}" ]
-  then sed -i "s/FIS_DB_INSTANCE/${FIS_DB_INSTANCE}/g" $mybatisDes
-  else sed -i "s/;instance=FIS_DB_INSTANCE//g" $mybatisDes
-fi
-
-if [ "${FIS_CYBERARK_ENABLE}" = false ]
-  then
-  if [ ! -z "${FIS_DB_USER}" ]
-    then sed -i "s/{{FIS_DB_USER}}/${FIS_DB_USER}/g" $mybatisDes
-  fi
-  if [ ! -z "${FIS_DB_PASS}" ]
-    then
-      file_content=$(cat "${FIS_DB_PASS}")
-      sed -i "s/{{FIS_DB_PASS}}/$file_content/g" $mybatisDes
-  fi
-fi
-
-cp $mybatisDes $mybatisDes2
-
-echo "####################### mybatis.xml updated"
-#######################
-echo
-
-##### LOG4J #####
-echo "####################### Updating log4j.cfg ....."
-echo
-
-log4jDes=/usr/local/tomcat/webapps/fish/WEB-INF/resources/log4j.cfg
-log4jDes2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/log4j.cfg
-
-sed -i "s,FIS_LOG4J_FILE,${FIS_LOG4J_FILE},g" $log4jDes
-sed -i "s/FIS_LOG4J_LEVEL/${FIS_LOG4J_LEVEL}/g" $log4jDes
-
-cp $log4jDes $log4jDes2
-
-echo "####################### log4j.cfg Updated"
-#######################
-echo
-
-##### LOG4J2 #####
-echo "####################### Updating log4j2.properties ....."
-echo
-
-log4j2Des=/usr/local/tomcat/webapps/fish/WEB-INF/resources/log4j2.properties
-log4j2Des2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/log4j2.properties
-
-
-
-sed -i "s,FIS_LOG4J_PATH,${FIS_LOG4J_PATH},g" $log4j2Des
-sed -i "s/FIS_LOG4J_LEVEL/${FIS_LOG4J_LEVEL}/g" $log4j2Des
-
-cp $log4j2Des $log4j2Des2
-
-echo "####################### log4j2.properties updated"
-#######################
-echo
-
-echo "####################### Repacking war file ...."
-echo
-
-jar -cvf /usr/local/tomcat/webapps/fish.war -C /usr/local/tomcat/webapps/fish . > /dev/null 2>&1
-
-echo
-
-echo "####################### war file updated"
-
-
-srcdir="/usr/bin"
-dstdir="/usr/local/tomcat/cmd"
-
-for srcfile in ${srcdir}/*
-do
-    dstfile=$(basename $srcfile)
-    cp $srcfile $dstdir/$dstfile
-done
-
-echo
-echo "####################### Checking mssql-scripts update ...."
-echo
-
-run-mssql-scripts.sh
-
-
-echo
-echo "####################### Cyberark Connectivity Test"
-echo
-URL="${FIS_CYBERARK_URL}"
-TIMEOUT=10
-
-response=$(curl -s -w "%{http_code}" -o response.txt --max-time $TIMEOUT "$URL")
-exit_code=$?
-
-if [ $exit_code -eq 0 ]; then
-    echo "Connection successful."
-else
-    echo "failed with exit code $exit_code"
-    echo "Error details:"
-    curl -v --max-time $TIMEOUT "$URL"
-fi
-echo
-echo "#######################"
-
-echo
-echo "####################### Kafka Connectivity Test"
-echo
-URL="${FIS_KAFKA_URL}"
-TIMEOUT=10
-
-response=$(curl -s -w "%{http_code}" -o response.txt --max-time $TIMEOUT "$URL")
-exit_code=$?
-
-if [ $exit_code -eq 0 ]; then
-    echo "Connection successful."
-else
-    echo "failed with exit code $exit_code"
-    echo "Error details:"
-    curl -v --max-time $TIMEOUT "$URL"
-fi
-echo
-echo "#######################"
-
-echo
-echo "####################### SMTP Connectivity Test"
-echo
-
-IP="${FIS_EMAIL_STMP}"
-PORT="${FIS_EMAIL_PORT}"
-echo -n "Testing $IP:$PORT ... "
-timeout 5 bash -c "echo > /dev/tcp/$IP/$PORT"
-if [ $? -eq 0 ]; then
-    echo "Connected"
-else
-    echo "Failed to connect to $IP on port $PORT"
-fi
-
-echo
-echo "#######################"
-
-echo
-echo "####################### Starting catalina ...."
-echo
-
-catalina.sh run
-
-echo
-echo "####################### Done"
-
-
-
-
-
-
