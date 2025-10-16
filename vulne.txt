@@ -100,3 +100,90 @@ Dockerfile:13
 --------------------
 ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    apt-get update;    apt-get install -y --no-install-recommends build-essential ca-certificates        pkg-config libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev        gnupg wget;    apt-get purge -y curl libcurl4t64 || true;    CVER=8.16.0;    wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";    tar -C /tmp -xf /tmp/curl.tar.xz;    cd /tmp/curl-${CVER};    ./configure      --with-openssl      --enable-http --enable-https --disable-ldap --disable-rtsp      --disable-dict --disable-telnet --disable-tftp --disable-pop3      --disable-imap --disable-smb --disable-smtp;    make -j\"$(nproc)\";    make install;    ldconfig;    cd /; rm -rf /tmp/curl*;    apt-get purge -y build-essential pkg-config libssl-dev zlib1g-dev        libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg;    apt-get autoremove -y;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
 Error: Process completed with exit code 1.
+
+
+
+
+
+#15 [curlbuilder 2/2] RUN set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-8.16.0.tar.xz";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-8.16.0;     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j"$(nproc)";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*
+#15 39.59 Err:1 http://security.ubuntu.com/ubuntu noble-security InRelease
+#15 39.59   Could not connect to security.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.83), connection timed out
+#15 39.59 Err:2 http://archive.ubuntu.com/ubuntu noble InRelease
+#15 39.59   Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out
+#15 39.61 Err:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+#15 39.61   Unable to connect to archive.ubuntu.com:80:
+#15 39.61 Err:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+#15 39.61   Unable to connect to archive.ubuntu.com:80:
+#15 39.62 Reading package lists...
+#15 39.63 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out
+#15 39.63 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to archive.ubuntu.com:80:
+#15 39.63 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to archive.ubuntu.com:80:
+#15 39.63 W: Failed to fetch http://security.ubuntu.com/ubuntu/dists/noble-security/InRelease  Could not connect to security.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to security.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to security.ubuntu.com:80 (91.189.91.83), connection timed out
+#15 39.63 W: Some index files failed to download. They have been ignored, or old ones used instead.
+#15 39.63 + apt-get install -y --no-install-recommends build-essential pkg-config ca-certificates libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev wget gnupg
+#15 39.63 Reading package lists...
+#15 39.64 Building dependency tree...
+#15 39.64 Reading state information...
+#15 39.64 Package ca-certificates is not available, but is referred to by another package.
+#15 39.64 This may mean that the package is missing, has been obsoleted, or
+#15 39.64 is only available from another source
+#15 39.64 
+#15 39.64 Package gnupg is not available, but is referred to by another package.
+#15 39.64 This may mean that the package is missing, has been obsoleted, or
+#15 39.64 is only available from another source
+#15 39.64 
+#15 39.64 E: Unable to locate package build-essential
+#15 39.64 E: Unable to locate package pkg-config
+#15 39.64 E: Package 'ca-certificates' has no installation candidate
+#15 39.64 E: Unable to locate package libssl-dev
+#15 39.64 E: Unable to locate package zlib1g-dev
+#15 39.64 E: Unable to locate package libnghttp2-dev
+#15 39.64 E: Unable to locate package libpsl-dev
+#15 39.64 E: Unable to locate package libidn2-0-dev
+#15 39.64 E: Unable to locate package wget
+#15 39.64 E: Package 'gnupg' has no installation candidate
+#15 ERROR: process "/bin/sh -c set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-${CVER};     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j\"$(nproc)\";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*" did not complete successfully: exit code: 100
+
+#12 [build 1/4] FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim@sha256:7072053847a8a05d7f3a14ebc778a90b38c50ce7e8f199382128a53385160688
+#12 CANCELED
+------
+ > [curlbuilder 2/2] RUN set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-8.16.0.tar.xz";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-8.16.0;     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j"$(nproc)";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*:
+39.64 E: Unable to locate package build-essential
+39.64 E: Unable to locate package pkg-config
+39.64 E: Package 'ca-certificates' has no installation candidate
+39.64 E: Unable to locate package libssl-dev
+39.64 E: Unable to locate package zlib1g-dev
+39.64 E: Unable to locate package libnghttp2-dev
+39.64 E: Unable to locate package libpsl-dev
+39.64 E: Unable to locate package libidn2-0-dev
+39.64 E: Unable to locate package wget
+39.64 E: Package 'gnupg' has no installation candidate
+------
+Dockerfile:16
+--------------------
+  15 |     
+  16 | >>> RUN set -eux; \
+  17 | >>>     sed -i 's|http://|https://|g' /etc/apt/sources.list; \
+  18 | >>>     apt-get update; \
+  19 | >>>     apt-get install -y --no-install-recommends \
+  20 | >>>         build-essential pkg-config ca-certificates \
+  21 | >>>         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev \
+  22 | >>>         wget gnupg; \
+  23 | >>>     wget -O /tmp/curl.tar.xz "https://curl.se/download/curl-${CVER}.tar.xz"; \
+  24 | >>>     tar -C /tmp -xf /tmp/curl.tar.xz; \
+  25 | >>>     cd /tmp/curl-${CVER}; \
+  26 | >>>     ./configure \
+  27 | >>>       --with-openssl \
+  28 | >>>       --enable-http --enable-https \
+  29 | >>>       --disable-ldap --disable-rtsp \
+  30 | >>>       --disable-dict --disable-telnet --disable-tftp \
+  31 | >>>       --disable-pop3 --disable-imap --disable-smb --disable-smtp \
+  32 | >>>       --disable-manual; \
+  33 | >>>     make -j"$(nproc)"; \
+  34 | >>>     make install; \
+  35 | >>>     strip /usr/local/bin/curl; \
+  36 | >>>     cd /; rm -rf /tmp/curl*
+  37 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-${CVER};     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j\"$(nproc)\";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*" did not complete successfully: exit code: 100
+Error: Process completed with exit code 1.
