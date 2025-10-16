@@ -12,3 +12,20 @@ libc6 2.39-0ubuntu8.6 - CVE-2016-20013
 openssl 3.0.13-0ubuntu3.6 - CVE-2024-41996
 libc-bin 2.39-0ubuntu8.6 - CVE-2016-20013
 expat 2.6.1-2ubuntu0.3 - CVE-2025-59375
+
+
+
+curl:8.5.0-2ubuntu10.6 CVE-2025-9086, CVE-2025-10148, CVE-2025-0167
+libcurl4t64 8.5.0-2ubuntu10.6 CVE-2025-9086, CVE-2025-10148, CVE-2025-0167
+openssl 3.0.13-0ubuntu3.6 CVE-2024-41996, CVE-2025-27587
+libssl3t64 3.0.13-0ubuntu3.6 CVE-2024-41996, CVE-2025-27587
+libpam0g 1.5.3-5ubuntu5.5 CVE-2025-8941, CVE-2024-10041
+libpam-modules-bin 1.5.3-5ubuntu5.5 CVE-2025-8941, CVE-2024-10041
+libpam-modules 1.5.3-5ubuntu5.5 CVE-2025-8941, CVE-2024-10041
+libpam-runtime:1.5.3-5ubuntu5.5 CVE-2025-8941, CVE-2024-10041
+locales 2.39-0ubuntu8.6 CVE-2016-20013
+libc6 2.39-0ubuntu8.6 CVE-2016-20013
+libexpat1 2.6.1-2ubuntu0.3 CVE-2025-59375
+libc-bin 2.39-0ubuntu8.6 CVE-2016-20013
+expat 2.6.1-2ubuntu0.3 CVE-2025-59375
+
