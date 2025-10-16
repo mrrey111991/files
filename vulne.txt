@@ -187,3 +187,252 @@ Dockerfile:16
 --------------------
 ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;     sed -i 's|http://|https://|g' /etc/apt/sources.list;     apt-get update;     apt-get install -y --no-install-recommends         build-essential pkg-config ca-certificates         libssl-dev zlib1g-dev libnghttp2-dev libpsl-dev libidn2-0-dev         wget gnupg;     wget -O /tmp/curl.tar.xz \"https://curl.se/download/curl-${CVER}.tar.xz\";     tar -C /tmp -xf /tmp/curl.tar.xz;     cd /tmp/curl-${CVER};     ./configure       --with-openssl       --enable-http --enable-https       --disable-ldap --disable-rtsp       --disable-dict --disable-telnet --disable-tftp       --disable-pop3 --disable-imap --disable-smb --disable-smtp       --disable-manual;     make -j\"$(nproc)\";     make install;     strip /usr/local/bin/curl;     cd /; rm -rf /tmp/curl*" did not complete successfully: exit code: 100
 Error: Process completed with exit code 1.
+
+
+
+
+
+#!/bin/bash
+
+escape_string_for_sed() {
+ local escaped_string="$1"
+ # Escape special characters
+ escaped_string=$(sed -e 's/[\/&]/\\&/g' \
+                      -e 's/[$]/\\$/g' \
+                      -e 's/[]]/\\]/g' \
+                      -e 's/[[]/\\[/g' \
+                      -e 's/[.]/\\./g' \
+                      -e 's/[?]/\\?/g' \
+                      -e 's/[+]/\\+/g' \
+                      -e 's/[{]/\\{/g' \
+                      -e 's/[}]/\\}/g' \
+                      -e 's/[(]/\\(/g' \
+                      -e 's/[)]/\\)/g' \
+                      -e 's/[|]/\\|/g' \
+                      -e 's/[!]/\\!/g' <<< "$escaped_string")
+ echo "$escaped_string"
+}
+
+echo
+echo "####################### Unpacking war file ....."
+echo
+
+unzip -q /usr/local/tomcat/webapps/fish.war -d /usr/local/tomcat/webapps/fish
+echo "Removing old war file ....."
+rm /usr/local/tomcat/webapps/fish.war
+echo
+
+##### CONFIG.JSN #####
+echo "####################### Updating config.jsn ....."
+echo
+configDes=/usr/local/tomcat/webapps/fish/WEB-INF/resources/config.jsn
+configDes2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/config.jsn
+
+sed -i "s,FIS_LDAP_URL,${FIS_LDAP_URL},g" $configDes
+sed -i "s,FIS_SITE_URL,${FIS_SITE_URL},g" $configDes
+sed -i "s/FIS_EMAIL_NOTIFY/${FIS_EMAIL_NOTIFY}/g" $configDes
+sed -i "s/FIS_EMAIL_STMP/${FIS_EMAIL_STMP}/g" $configDes
+sed -i "s/FIS_EMAIL_PORT/${FIS_EMAIL_PORT}/g" $configDes
+sed -i "s/FIS_LDAP_ENABLE/${FIS_LDAP_ENABLE}/g" $configDes
+sed -i "s/FIS_LDAP_DOMAIN/${FIS_LDAP_DOMAIN}/g" $configDes
+sed -i "s,FIS_LDAP_URL,${FIS_LDAP_URL},g" $configDes
+sed -i "s/FIS_LDAP_AUTH/${FIS_LDAP_AUTH}/g" $configDes
+sed -i "s/FIS_LDAP_CF/${FIS_LDAP_CF}/g" $configDes
+sed -i "s/FIS_LDAP_CNS/${FIS_LDAP_CNS}/g" $configDes
+sed -i "s/FIS_LDAP_ERRMSG_PREFIX/${FIS_LDAP_ERRMSG_PREFIX}/g" $configDes
+sed -i "s/FIS_LDAP_ERRMSG_SUFFIX/${FIS_LDAP_ERRMSG_SUFFIX}/g" $configDes
+sed -i "s/FIS_LDAP_USER/${FIS_LDAP_USER}/g" $configDes
+
+FISLDAPCRED=$(cat "${FIS_LDAP_CRED}")
+CLEANCRED=$(escape_string_for_sed "$FISLDAPCRED")
+sed -i "s/FIS_LDAP_CRED/${CLEANCRED}/g" $configDes
+
+sed -i "s/FIS_CYBERARK_ENABLE/${FIS_CYBERARK_ENABLE}/g" $configDes
+sed -i "s,FIS_CYBERARK_URL,${FIS_CYBERARK_URL},g" $configDes
+sed -i "s/FIS_CYBERARK_APPID/${FIS_CYBERARK_APPID}/g" $configDes
+sed -i "s/FIS_CYBERARK_SAFE/${FIS_CYBERARK_SAFE}/g" $configDes
+sed -i "s/FIS_CYBERARK_OBJ/${FIS_CYBERARK_OBJ}/g" $configDes
+sed -i "s/FIS_CYBERARK_USER/${FIS_CYBERARK_USER}/g" $configDes
+
+sed -i "s/FIS_KAFKA_ENABLE/${FIS_KAFKA_ENABLE}/g" $configDes
+sed -i "s,FIS_KAFKA_URL,${FIS_KAFKA_URL},g" $configDes
+sed -i "s/FIS_KAFKA_APPID/${FIS_KAFKA_APPID}/g" $configDes
+sed -i "s/FIS_KAFKA_APIKEY/${FIS_KAFKA_APIKEY}/g" $configDes
+
+FISKAFKASECRET=$(cat "${FIS_KAFKA_APISECRET}")
+KAFKACLEANSECRET=$(escape_string_for_sed "$FISKAFKASECRET")
+sed -i "s/FIS_KAFKA_APISECRET/${KAFKACLEANSECRET}/g" $configDes
+
+sed -i "s/FIS_USE_HOST_SCHEMA/${FIS_USE_HOST_SCHEMA}/g" $configDes
+sed -i "s/FIS_CUSTOM_SCHEMA/${FIS_CUSTOM_SCHEMA}/g" $configDes
+sed -i "s/FIS_USE_HOST_PORT/${FIS_USE_HOST_PORT}/g" $configDes
+sed -i "s/FIS_CUSTOM_PORT/${FIS_CUSTOM_PORT}/g" $configDes
+sed -i "s,FIS_TEMP_FOLDER,${FIS_TEMP_FOLDER},g" $configDes
+sed -i "s,FIS_UPLOAD_PATH,${FIS_UPLOAD_PATH},g" $configDes
+
+cp $configDes $configDes2
+
+echo "####################### config.jsn updated"
+#######################
+echo
+
+##### MYBATIS.XML AND DB BUILD SPECIFIC #####
+echo "####################### Updating mybatis.xml ....."
+echo
+
+mybatisDes=/usr/local/tomcat/webapps/fish/WEB-INF/resources/mybatis.xml
+mybatisDes2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/mybatis.xml
+
+sed -i "s/FIS_DB_HOST/${FIS_DB_HOST}/g" $mybatisDes
+sed -i "s/FIS_DB_NAME/${FIS_DB_NAME}/g" $mybatisDes
+sed -i "s/FIS_DB_PORT/${FIS_DB_PORT}/g" $mybatisDes
+if [ ! -z "${FIS_DB_INSTANCE}" ]
+  then sed -i "s/FIS_DB_INSTANCE/${FIS_DB_INSTANCE}/g" $mybatisDes
+  else sed -i "s/;instance=FIS_DB_INSTANCE//g" $mybatisDes
+fi
+
+if [ "${FIS_CYBERARK_ENABLE}" = false ]
+  then
+  if [ ! -z "${FIS_DB_USER}" ]
+    then sed -i "s/{{FIS_DB_USER}}/${FIS_DB_USER}/g" $mybatisDes
+  fi
+  if [ ! -z "${FIS_DB_PASS}" ]
+    then
+      file_content=$(cat "${FIS_DB_PASS}")
+      sed -i "s/{{FIS_DB_PASS}}/$file_content/g" $mybatisDes
+  fi
+fi
+
+cp $mybatisDes $mybatisDes2
+
+echo "####################### mybatis.xml updated"
+#######################
+echo
+
+##### LOG4J #####
+echo "####################### Updating log4j.cfg ....."
+echo
+
+log4jDes=/usr/local/tomcat/webapps/fish/WEB-INF/resources/log4j.cfg
+log4jDes2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/log4j.cfg
+
+sed -i "s,FIS_LOG4J_FILE,${FIS_LOG4J_FILE},g" $log4jDes
+sed -i "s/FIS_LOG4J_LEVEL/${FIS_LOG4J_LEVEL}/g" $log4jDes
+
+cp $log4jDes $log4jDes2
+
+echo "####################### log4j.cfg Updated"
+#######################
+echo
+
+##### LOG4J2 #####
+echo "####################### Updating log4j2.properties ....."
+echo
+
+log4j2Des=/usr/local/tomcat/webapps/fish/WEB-INF/resources/log4j2.properties
+log4j2Des2=/usr/local/tomcat/webapps/fish/WEB-INF/classes/resources/log4j2.properties
+
+
+
+sed -i "s,FIS_LOG4J_PATH,${FIS_LOG4J_PATH},g" $log4j2Des
+sed -i "s/FIS_LOG4J_LEVEL/${FIS_LOG4J_LEVEL}/g" $log4j2Des
+
+cp $log4j2Des $log4j2Des2
+
+echo "####################### log4j2.properties updated"
+#######################
+echo
+
+echo "####################### Repacking war file ...."
+echo
+
+jar -cvf /usr/local/tomcat/webapps/fish.war -C /usr/local/tomcat/webapps/fish . > /dev/null 2>&1
+
+echo
+
+echo "####################### war file updated"
+
+
+srcdir="/usr/bin"
+dstdir="/usr/local/tomcat/cmd"
+
+for srcfile in ${srcdir}/*
+do
+    dstfile=$(basename $srcfile)
+    cp $srcfile $dstdir/$dstfile
+done
+
+echo
+echo "####################### Checking mssql-scripts update ...."
+echo
+
+run-mssql-scripts.sh
+
+
+echo
+echo "####################### Cyberark Connectivity Test"
+echo
+URL="${FIS_CYBERARK_URL}"
+TIMEOUT=10
+
+response=$(curl -s -w "%{http_code}" -o response.txt --max-time $TIMEOUT "$URL")
+exit_code=$?
+
+if [ $exit_code -eq 0 ]; then
+    echo "Connection successful."
+else
+    echo "failed with exit code $exit_code"
+    echo "Error details:"
+    curl -v --max-time $TIMEOUT "$URL"
+fi
+echo
+echo "#######################"
+
+echo
+echo "####################### Kafka Connectivity Test"
+echo
+URL="${FIS_KAFKA_URL}"
+TIMEOUT=10
+
+response=$(curl -s -w "%{http_code}" -o response.txt --max-time $TIMEOUT "$URL")
+exit_code=$?
+
+if [ $exit_code -eq 0 ]; then
+    echo "Connection successful."
+else
+    echo "failed with exit code $exit_code"
+    echo "Error details:"
+    curl -v --max-time $TIMEOUT "$URL"
+fi
+echo
+echo "#######################"
+
+echo
+echo "####################### SMTP Connectivity Test"
+echo
+
+IP="${FIS_EMAIL_STMP}"
+PORT="${FIS_EMAIL_PORT}"
+echo -n "Testing $IP:$PORT ... "
+timeout 5 bash -c "echo > /dev/tcp/$IP/$PORT"
+if [ $? -eq 0 ]; then
+    echo "Connected"
+else
+    echo "Failed to connect to $IP on port $PORT"
+fi
+
+echo
+echo "#######################"
+
+echo
+echo "####################### Starting catalina ...."
+echo
+
+catalina.sh run
+
+echo
+echo "####################### Done"
+
+
+
+
