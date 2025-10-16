@@ -146,6 +146,48 @@ COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
 # --- Permissions and runtime setup ---
 RUN chmod +x $TOMCAT_HOME/bin/*.sh && mkdir -p $TOMCAT_HOME/cmd
 
+
+
+
+#18 7.924 Reading package lists...
+#18 9.165 W: GPG error: https://packages.microsoft.com/debian/12/prod bookworm InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY EB3E94ADBE1229CF
+#18 9.165 E: The repository 'https://packages.microsoft.com/debian/12/prod bookworm InRelease' is not signed.
+#18 ERROR: process "/bin/sh -c curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list         > /etc/apt/sources.list.d/mssql-release.list &&     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools &&     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd &&     apt-get clean && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+
+#17 [build 7/8] RUN ./gradlew build --no-daemon
+#17 CANCELED
+------
+ > [stage-1  4/12] RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list         > /etc/apt/sources.list.d/mssql-release.list &&     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools &&     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd &&     apt-get clean && rm -rf /var/lib/apt/lists/*:
+6.650 Get:13 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+6.672 Get:14 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,897 kB]
+6.812 Get:15 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,928 kB]
+6.954 Get:16 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,644 kB]
+7.155 Get:17 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [38.9 kB]
+7.158 Get:18 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [33.9 kB]
+7.160 Get:19 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
+
+9.165 W: GPG error: https://packages.microsoft.com/debian/12/prod bookworm InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY EB3E94ADBE1229CF
+9.165 E: The repository 'https://packages.microsoft.com/debian/12/prod bookworm InRelease' is not signed.
+------
+
+ 1 warning found (use docker --debug to expand):
+ - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+Dockerfile:44
+--------------------
+  43 |     # Add Microsoft GPG key and repo for MSSQL tools
+  44 | >>> RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+  45 | >>>     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
+  46 | >>>         > /etc/apt/sources.list.d/mssql-release.list && \
+  47 | >>>     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools && \
+  48 | >>>     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd && \
+  49 | >>>     apt-get clean && rm -rf /var/lib/apt/lists/*
+  50 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list         > /etc/apt/sources.list.d/mssql-release.list &&     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools &&     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd &&     apt-get clean && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+Error: Process completed with exit code 1.
+
+
 EXPOSE 8080
 CMD ["fish-startup.sh"]
+
 
