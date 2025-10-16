@@ -18,53 +18,48 @@ ENV TOMCAT_HOME=/usr/local/tomcat
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list && \
     find /etc/apt/sources.list.d -type f -exec sed -i 's|http://|https://|g' {} +
 
-# Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+# Force update all packages to latest security versions
+RUN apt-get update && \
+    apt-get install -y --only-upgrade \
+    dpkg \
     unzip \
     telnet \
     gnupg \
     apt-transport-https \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install updated Ubuntu version and patch vulnerable packages
-RUN echo "deb https://archive.ubuntu.com/ubuntu noble main restricted universe multiverse" > /etc/apt/sources.list && \
-    echo "deb https://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "deb https://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse" >> /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y --only-upgrade \
-    dpkg \
-    curl \
-    libcurl4t64 \
-    openssl \
-    libssl3t64 \
-    libpam-modules \
-    libpam-runtime \
-    libpam-modules-bin \
-    libpam0g \
-    libexpat1 \
-    expat \
-    libc-bin \
-    libc6 \
-    locales \
     libsystemd0 \
     libudev1 \
     libssh-4 \
     libgnutls30t64 \
     systemd \
     sqlite3 \
-    libsqlite3-0 && \
+    libsqlite3-0 \
+    curl=8.5.0-2ubuntu10.6 \
+    libcurl4t64=8.5.0-2ubuntu10.6 \
+    openssl=3.0.13-0ubuntu3.6 \
+    libssl3t64=3.0.13-0ubuntu3.6 \
+    libpam0g=1.5.3-5ubuntu5.5 \
+    libpam-modules-bin=1.5.3-5ubuntu5.5 \
+    libpam-modules=1.5.3-5ubuntu5.5 \
+    libpam-runtime=1.5.3-5ubuntu5.5 \
+    locales=2.39-0ubuntu8.6 \
+    libc6=2.39-0ubuntu8.6 \
+    libc-bin=2.39-0ubuntu8.6 \
+    libexpat1=2.6.1-2ubuntu0.3 \
+    expat=2.6.1-2ubuntu0.3 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Add Microsoft GPG key and repo for MSSQL tools
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
-
-# Link sqlcmd for easy access
-RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc && \
-    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd && \
-    rm -rf /var/lib/apt/lists/*
+# Install MSSQL Tools (Debian 12 repo works for Ubuntu 24.04)
+RUN set -eux; \
+   mkdir -p /etc/apt/keyrings; \
+   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+       | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
+   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" \
+> /etc/apt/sources.list.d/mssql-release.list; \
+   apt-get update; \
+   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools; \
+   ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd; \
+   apt-get clean; \
+   rm -rf /var/lib/apt/lists/*
 
 # Copy build artifacts from the build stage
 COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/fish-startup.sh
@@ -83,188 +78,3 @@ CMD ["fish-startup.sh"]
 EXPOSE 8080
 
 #test deployment
-
-
-#fix
-
-# ===== Build stage =====
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim as build
-WORKDIR /app
-COPY . .
-RUN chmod +x ./pre-build.sh ./gradlew
-RUN ./pre-build.sh reset
-RUN ./gradlew build --no-daemon
-RUN ls -l ./build/libs && echo 1
-
-# ===== Production stage =====
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.44-jdk21
-
-ENV TOMCAT_HOME=/usr/local/tomcat
-
-# Use HTTPS for apt sources
-RUN sed -i 's|http://|https://|g' /etc/apt/sources.list && \
-    find /etc/apt/sources.list.d -type f -exec sed -i 's|http://|https://|g' {} +
-
-# --- Security Fix: upgrade all vulnerable system libraries ---
-RUN apt-get update && \
-    apt-get -y --no-install-recommends upgrade && \
-    apt-get -y --no-install-recommends install \
-        curl \
-        unzip \
-        telnet \
-        gnupg \
-        apt-transport-https \
-        unixodbc-dev \
-        libc-bin \
-        libc6 \
-        libssl3 \
-        openssl \
-        libexpat1 \
-        libpam-runtime \
-        libpam0g \
-        libpam-modules \
-        libpam-modules-bin \
-        locales && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# --- MSSQL Tools (Debian 12 version) ---
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
-        > /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools && \
-    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# --- Copy build artifacts ---
-COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/
-COPY --from=build /app/test-api.sh $TOMCAT_HOME/bin/
-COPY --from=build /app/run-mssql-scripts.sh $TOMCAT_HOME/bin/
-COPY --from=build /app/database/ $TOMCAT_HOME/bin/database/
-COPY --from=build /app/tomcat/ $TOMCAT_HOME/conf/
-COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
-
-# --- Permissions and runtime setup ---
-RUN chmod +x $TOMCAT_HOME/bin/*.sh && mkdir -p $TOMCAT_HOME/cmd
-
-EXPOSE 8080
-CMD ["fish-startup.sh"]
-
-
-
-
-
-
-#18 7.924 Reading package lists...
-#18 9.165 W: GPG error: https://packages.microsoft.com/debian/12/prod bookworm InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY EB3E94ADBE1229CF
-#18 9.165 E: The repository 'https://packages.microsoft.com/debian/12/prod bookworm InRelease' is not signed.
-#18 ERROR: process "/bin/sh -c curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list         > /etc/apt/sources.list.d/mssql-release.list &&     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools &&     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd &&     apt-get clean && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-
-#17 [build 7/8] RUN ./gradlew build --no-daemon
-#17 CANCELED
-------
- > [stage-1  4/12] RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list         > /etc/apt/sources.list.d/mssql-release.list &&     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools &&     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd &&     apt-get clean && rm -rf /var/lib/apt/lists/*:
-6.650 Get:13 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
-6.672 Get:14 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,897 kB]
-6.812 Get:15 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,928 kB]
-6.954 Get:16 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,644 kB]
-7.155 Get:17 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [38.9 kB]
-7.158 Get:18 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [33.9 kB]
-7.160 Get:19 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
-
-9.165 W: GPG error: https://packages.microsoft.com/debian/12/prod bookworm InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY EB3E94ADBE1229CF
-9.165 E: The repository 'https://packages.microsoft.com/debian/12/prod bookworm InRelease' is not signed.
-------
-
- 1 warning found (use docker --debug to expand):
- - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:44
---------------------
-  43 |     # Add Microsoft GPG key and repo for MSSQL tools
-  44 | >>> RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-  45 | >>>     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
-  46 | >>>         > /etc/apt/sources.list.d/mssql-release.list && \
-  47 | >>>     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools && \
-  48 | >>>     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd && \
-  49 | >>>     apt-get clean && rm -rf /var/lib/apt/lists/*
-  50 |     
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&     curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list         > /etc/apt/sources.list.d/mssql-release.list &&     apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools &&     ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd &&     apt-get clean && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-Error: Process completed with exit code 1.
-
-
-
-
-
-#18 [stage-1  4/12] RUN set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*
-#18 0.266 + mkdir -p /etc/apt/keyrings
-#18 0.275 + curl -fsSL https://packages.microsoft.com/keys/microsoft.asc
-#18 0.275 + gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg
-#18 0.413 + echo deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main
-#18 0.416 + apt-get update
-#18 0.604 Get:1 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3,600 B]
-#18 0.694 Get:2 https://packages.microsoft.com/ubuntu/24.04/prod noble/main all Packages [643 B]
-#18 0.711 Get:3 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [62.6 kB]
-#18 1.303 Get:4 https://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
-#18 1.425 Get:5 https://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
-#18 2.378 Get:6 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2,512 kB]
-#18 2.607 Get:7 https://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
-#18 2.918 Get:8 https://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
-#18 3.230 Get:9 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
-#18 3.580 Get:10 https://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
-#18 3.653 Get:11 https://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1,808 kB]
-#18 3.663 Get:12 https://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1,531 kB]
-#18 3.762 Get:13 https://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1,141 kB]
-#18 3.901 Get:14 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [34.6 kB]
-#18 4.171 Get:15 https://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
-#18 5.671 Get:16 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [38.9 kB]
-#18 5.676 Get:17 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,644 kB]
-#18 5.882 Get:18 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,897 kB]
-#18 6.033 Get:19 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,928 kB]
-#18 6.897 Get:20 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
-#18 7.555 Get:21 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [33.9 kB]
-#18 7.675 Fetched 34.1 MB in 7s (4,722 kB/s)
-#18 7.675 Reading package lists...
-#18 8.930 + ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools
-#18 8.944 Reading package lists...
-#18 10.24 Building dependency tree...
-#18 10.53 Reading state information...
-#18 10.57 E: Unable to locate package mssql-tools
-#18 ERROR: process "/bin/sh -c set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-#17 [build 7/8] RUN ./gradlew build --no-daemon
-#17 CANCELED
-------
- > [stage-1  4/12] RUN set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*:
-5.676 Get:17 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2,644 kB]
-5.882 Get:18 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1,897 kB]
-6.033 Get:19 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1,928 kB]
-6.897 Get:20 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.4 kB]
-7.555 Get:21 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [33.9 kB]
-10.53 Reading state information...
-10.57 E: Unable to locate package mssql-tools
-------
- 1 warning found (use docker --debug to expand):
- - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:44
---------------------
-  43 |     # Add Microsoft GPG key and repository for MSSQL tools
-  44 | >>> RUN set -eux; \
-  45 | >>>    mkdir -p /etc/apt/keyrings; \
-  46 | >>>    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-  47 | >>>        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
-  48 | >>>    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" \
-  49 | >>> > /etc/apt/sources.list.d/mssql-release.list; \
-  50 | >>>    apt-get update; \
-  51 | >>>    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools; \
-  52 | >>>    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd; \
-  53 | >>>    apt-get clean; \
-  54 | >>>    rm -rf /var/lib/apt/lists/*
-  55 |     
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc        | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools;    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd;    apt-get clean;    rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-Error: Process completed with exit code 1.
-
-
-
-
-
-
