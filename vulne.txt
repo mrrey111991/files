@@ -29,3 +29,10 @@ libexpat1 2.6.1-2ubuntu0.3 CVE-2025-59375
 libc-bin 2.39-0ubuntu8.6 CVE-2016-20013
 expat 2.6.1-2ubuntu0.3 CVE-2025-59375
 
+curl 8.5.0-2ubuntu10.6
+CVE-2025-9086
+
+Description
+A flaw in curl's cookie handling logic can be triggered under specific conditions involving secure attributes and path comparisons. First, A cookie is set using the `secure` keyword for `https://target`. Second, curl is redirected to or otherwise made to speak with `http://target` (same hostname, but using clear text HTTP) using the same cookie set. Third, the same cookie name is set - but with just a slash as path (`path='/'`). Since this site is not secure, the cookie should just be ignored. Finally, a bug in the path comparison logic makes curl read outside a heap buffer boundary. This bug either causes a crash or it potentially makes the comparison come to the wrong conclusion and lets the clear-text site override the contents of the secure cookie, contrary to expectations and depending on the memory contents immediately following the single-byte allocation that holds the path. The presumed and correct behaviour would be to plainly ignore the second set of the cookie since it was already set as secure on a secure host so overriding it on an insecure host should not be okay. It affects curl versions 7.31.0 through 8.15.0.
+Publication Date
+12/9/2025
