@@ -1,0 +1,85 @@
+# Build stage
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim as build
+WORKDIR /app
+COPY . .
+RUN chmod +x ./pre-build.sh
+RUN chmod +x ./gradlew
+RUN ./pre-build.sh reset
+RUN ./gradlew build --no-daemon
+RUN ls -l ./build/libs && echo 1
+
+# Production stage
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.44-jdk21
+
+# Environment variables
+ENV TOMCAT_HOME=/usr/local/tomcat
+
+# Ensure APT uses HTTPS
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list && \
+    find /etc/apt/sources.list.d -type f -exec sed -i 's|http://|https://|g' {} +
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    unzip \
+    telnet \
+    gnupg \
+    apt-transport-https \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install updated Ubuntu version and patch vulnerable packages
+RUN echo "deb https://archive.ubuntu.com/ubuntu noble main restricted universe multiverse" > /etc/apt/sources.list && \
+    echo "deb https://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "deb https://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y --only-upgrade \
+    dpkg \
+    curl \
+    libcurl4t64 \
+    openssl \
+    libssl3t64 \
+    libpam-modules \
+    libpam-runtime \
+    libpam-modules-bin \
+    libpam0g \
+    libexpat1 \
+    expat \
+    libc-bin \
+    libc6 \
+    locales \
+    libsystemd0 \
+    libudev1 \
+    libssh-4 \
+    libgnutls30t64 \
+    systemd \
+    sqlite3 \
+    libsqlite3-0 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Add Microsoft GPG key and repo for MSSQL tools
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+
+# Link sqlcmd for easy access
+RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc && \
+    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy build artifacts from the build stage
+COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/fish-startup.sh
+COPY --from=build /app/test-api.sh $TOMCAT_HOME/bin/test-api.sh
+COPY --from=build /app/run-mssql-scripts.sh $TOMCAT_HOME/bin/run-mssql-scripts.sh
+COPY --from=build /app/database/ $TOMCAT_HOME/bin/database/
+COPY --from=build /app/tomcat/ $TOMCAT_HOME/conf/
+COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
+
+# Prepare Tomcat
+RUN mkdir $TOMCAT_HOME/cmd
+RUN chmod +x $TOMCAT_HOME/bin/*.sh
+
+# Webapp startup
+CMD ["fish-startup.sh"]
+EXPOSE 8080
+
+#test deployment
