@@ -83,3 +83,69 @@ CMD ["fish-startup.sh"]
 EXPOSE 8080
 
 #test deployment
+
+
+#fix
+
+# ===== Build stage =====
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim as build
+WORKDIR /app
+COPY . .
+RUN chmod +x ./pre-build.sh ./gradlew
+RUN ./pre-build.sh reset
+RUN ./gradlew build --no-daemon
+RUN ls -l ./build/libs && echo 1
+
+# ===== Production stage =====
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.44-jdk21
+
+ENV TOMCAT_HOME=/usr/local/tomcat
+
+# Use HTTPS for apt sources
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list && \
+    find /etc/apt/sources.list.d -type f -exec sed -i 's|http://|https://|g' {} +
+
+# --- Security Fix: upgrade all vulnerable system libraries ---
+RUN apt-get update && \
+    apt-get -y --no-install-recommends upgrade && \
+    apt-get -y --no-install-recommends install \
+        curl \
+        unzip \
+        telnet \
+        gnupg \
+        apt-transport-https \
+        unixodbc-dev \
+        libc-bin \
+        libc6 \
+        libssl3 \
+        openssl \
+        libexpat1 \
+        libpam-runtime \
+        libpam0g \
+        libpam-modules \
+        libpam-modules-bin \
+        locales && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# --- MSSQL Tools (Debian 12 version) ---
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
+        > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools && \
+    ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# --- Copy build artifacts ---
+COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/
+COPY --from=build /app/test-api.sh $TOMCAT_HOME/bin/
+COPY --from=build /app/run-mssql-scripts.sh $TOMCAT_HOME/bin/
+COPY --from=build /app/database/ $TOMCAT_HOME/bin/database/
+COPY --from=build /app/tomcat/ $TOMCAT_HOME/conf/
+COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
+
+# --- Permissions and runtime setup ---
+RUN chmod +x $TOMCAT_HOME/bin/*.sh && mkdir -p $TOMCAT_HOME/cmd
+
+EXPOSE 8080
+CMD ["fish-startup.sh"]
+
