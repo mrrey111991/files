@@ -96,49 +96,79 @@ CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
 
 
 
-# syntax=docker/dockerfile:1.6
-ARG SQLTOOLS_IMAGE=docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04
+# --- Production stage (hardened) ---
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.48-jdk21-temurin-noble
+ENV DEBIAN_FRONTEND=noninteractive \
+    TOMCAT_HOME=/usr/local/tomcat
 
-# 1) build
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim AS build
-WORKDIR /app
-COPY . .
-RUN chmod +x ./pre-build.sh ./gradlew
-RUN ./pre-build.sh reset && ./gradlew build --no-daemon
-RUN ls -l ./build/libs
+# 1) Normalize APT to HTTPS & ensure security pocket
+RUN set -eux; \
+  sed -i 's|http://|https://|g' /etc/apt/sources.list || true; \
+  grep -q 'noble-security' /etc/apt/sources.list || \
+    echo 'deb https://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse' >> /etc/apt/sources.list
 
-# 2) sqltools source
-FROM ${SQLTOOLS_IMAGE} AS sqltools
+# 2) Update base and explicitly upgrade common CVE magnets (incl. your list)
+RUN set -eux; \
+  apt-get -o Acquire::Retries=5 update; \
+  apt-get install -y --no-install-recommends ca-certificates curl unzip; \
+  # Prefer full security refresh first
+  apt-get -y dist-upgrade || apt-get -y full-upgrade; \
+  # Explicitly upgrade families often flagged by scanners
+  apt-get install -y --no-install-recommends --only-upgrade \
+    # OpenSSL
+    openssl libssl3t64 \
+    # glibc
+    libc6 libc-bin locales \
+    # PAM
+    libpam0g libpam-runtime libpam-modules libpam-modules-bin \
+    # Expat
+    expat libexpat1 \
+    # (keep these refreshed too)
+    dpkg tar gzip xz-utils zlib1g; \
+  # Generate locales if the package updated (avoid scanner nags)
+  if command -v locale-gen >/dev/null 2>&1; then locale-gen en_US.UTF-8 || true; fi; \
+  # Show versions for audit pipelines
+  dpkg -l | awk '/^ii/ && ($2 ~ /^(openssl|libssl3|libc6|libc-bin|locales|libpam0g|libpam-runtime|libpam-modules|libpam-modules-bin|expat|libexpat1)$/){printf "%-24s %-20s %s\n",$2,$3,$4}'; \
+  rm -rf /var/lib/apt/lists/*
 
-# 3) runtime (Debian Tomcat) – final image
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS final
-ENV TOMCAT_HOME=/usr/local/tomcat \
-    LANG=C.UTF-8 LC_ALL=C.UTF-8 \
-    PATH="/opt/mssql-tools18/bin:${PATH}" \
-    LD_LIBRARY_PATH="/opt/microsoft/msodbcsql18/lib64:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
+# 3) (Optional) MS repo for tools18, install, then remove repo to reduce CVEs
+RUN set -eux; \
+  # Ensure deb822 security source exists; normalize to https again
+  find /etc/apt -type f -name '*.list' -exec sed -i 's|http://|https://|g' {} + || true; \
+  find /etc/apt -type f -name '*.sources' -exec sed -i 's|http://|https://|g' {} + || true; \
+  apt-get -o Acquire::Retries=5 update; \
+  . /etc/os-release; \
+  mkdir -p /etc/apt/keyrings; \
+  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+    | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
+  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main" \
+    > /etc/apt/sources.list.d/mssql-release.list; \
+  apt-get -o Acquire::Retries=5 update; \
+  apt-get install -y --no-install-recommends libltdl7 unixodbc; \
+  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18; \
+  ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
+  # Remove MS repo & keys to avoid repo CVEs
+  rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg; \
+  apt-get purge -y --auto-remove gnupg || true; \
+  apt-get clean; rm -rf /var/lib/apt/lists/*
 
-RUN set -eux; rm -rf "$TOMCAT_HOME"/webapps/*
+# 4) Extra hardening clean-up
+RUN set -eux; \
+  apt-get autoremove -y; \
+  apt-get clean; \
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/lib/dpkg/*-old
 
-# bring in only sqlcmd + ODBC bits
-COPY --from=sqltools /opt/mssql-tools18 /opt/mssql-tools18
-COPY --from=sqltools /opt/microsoft     /opt/microsoft
-COPY --from=sqltools /etc/odbcinst.ini  /etc/odbcinst.ini
-COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libodbc.so.*     /usr/lib/x86_64-linux-gnu/
-COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libodbcinst.so.* /usr/lib/x86_64-linux-gnu/
-COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libltdl.so.*     /usr/lib/x86_64-linux-gnu/
-RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd \
- && /usr/local/bin/sqlcmd -? >/dev/null || true
+# --- copy your artifacts ---
+COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/fish-startup.sh
+COPY --from=build /app/test-api.sh $TOMCAT_HOME/bin/test-api.sh
+COPY --from=build /app/run-mssql-scripts.sh $TOMCAT_HOME/bin/run-mssql-scripts.sh
+COPY --from=build /app/database/ $TOMCAT_HOME/bin/database/
+COPY --from=build /app/tomcat/ $TOMCAT_HOME/conf/
+COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
+RUN set -eux; mkdir -p "$TOMCAT_HOME/cmd"; chmod +x "$TOMCAT_HOME"/bin/*.sh
 
-# app
-COPY --from=build /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
-COPY --from=build /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
-COPY --from=build /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
-COPY --from=build /app/database/               $TOMCAT_HOME/bin/database/
-COPY --from=build /app/tomcat/                 $TOMCAT_HOME/conf/
-COPY --from=build /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
-
-RUN set -eux; chmod +x "$TOMCAT_HOME"/bin/*.sh
 EXPOSE 8080
 CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
+
 
 
