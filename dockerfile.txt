@@ -1,3 +1,5 @@
+backup 2025-10-17 12:29pm
+
 # Build stage
 FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim as build
 WORKDIR /app
@@ -8,46 +10,77 @@ RUN ./pre-build.sh reset
 RUN ./gradlew build --no-daemon
 RUN ls -l ./build/libs && echo 1
 
-# Production stage
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.44-jdk21
-
-# Environment variables
-ENV TOMCAT_HOME=/usr/local/tomcat
-
-# Ensure APT uses HTTPS
-RUN sed -i 's|http://|https://|g' /etc/apt/sources.list && \
-    find /etc/apt/sources.list.d -type f -exec sed -i 's|http://|https://|g' {} +
-
-# Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gnupg \
-    apt-transport-https \
-    && rm -rf /var/lib/apt/lists/*
-
-# MSSQL tools
+# --- Production stage (hardened) ---
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.48-jdk21-temurin-noble
+ENV DEBIAN_FRONTEND=noninteractive \
+   TOMCAT_HOME=/usr/local/tomcat
+# 1) Ensure HTTPS mirrors + security pocket present
 RUN set -eux; \
-   mkdir -p /etc/apt/keyrings; \
-   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-       | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
-   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" \
-> /etc/apt/sources.list.d/mssql-release.list; \
+   sed -i 's|http://|https://|g' /etc/apt/sources.list || true; \
+   grep -q '^deb .*security.ubuntu.com/ubuntu .*noble-security' /etc/apt/sources.list \
+     || echo 'deb https://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse' >> /etc/apt/sources.list
+# 2) Base update + minimal tools, then security/full upgrade
+RUN set -eux; \
    apt-get update; \
-   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools; \
-   ln -sf /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd; \
-   apt-get clean; rm -rf /var/lib/apt/lists/*
-
-# Copy build artifacts from the build stage
+   apt-get install -y --no-install-recommends ca-certificates gnupg curl unzip; \
+   # Full security refresh (pulls patched libs that scanners want)
+   apt-get -y dist-upgrade || apt-get -y full-upgrade; \
+   # Usual high CVEs: upgrade these explicitly too
+   apt-get install -y --no-install-recommends --only-upgrade \
+       curl libcurl4t64 ca-certificates openssl libssl3t64 \
+       libc6 libc-bin dpkg \
+       libsqlite3-0 sqlite3 \
+       krb5-locales libkrb5-3 libk5crypto3 \
+       tar gzip xz-utils zlib1g; \
+   # Clean apt lists early (but we’ll do a deep clean later too)
+   rm -rf /var/lib/apt/lists/*
+# 3) Microsoft repo (Ubuntu, not Debian) just long enough to install tools18
+RUN set -eux; \
+ # --- Normalize APT sources to HTTPS and de-dup ---
+ # If deb822 exists, drop the old sources.list to avoid duplicate entries
+ if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then rm -f /etc/apt/sources.list; fi; \
+ # Ensure ALL sources (both .list and .sources) use https
+ find /etc/apt -type f -name '*.list' -exec sed -i 's|http://|https://|g' {} + || true; \
+ find /etc/apt -type f -name '*.sources' -exec sed -i 's|http://|https://|g' {} + || true; \
+ # Make sure security pocket is present (some base images omit it)
+ grep -q 'noble-security' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || \
+   echo -e "Types: deb\nURIs: https://security.ubuntu.com/ubuntu\nSuites: noble-security\nComponents: main restricted universe multiverse" \
+> /etc/apt/sources.list.d/security.sources; \
+ # More robust updates (with retries)
+ apt-get -o Acquire::Retries=5 update; \
+ apt-get install -y --no-install-recommends ca-certificates gnupg curl unzip; \
+ \
+ # --- Add Microsoft repo for Ubuntu (HTTPS) ---
+ . /etc/os-release; \
+ mkdir -p /etc/apt/keyrings; \
+ curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+   | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
+ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main" \
+> /etc/apt/sources.list.d/mssql-release.list; \
+ apt-get -o Acquire::Retries=5 update; \
+ \
+ # --- Preinstall ODBC deps (avoids libltdl7 errors when indexes were partial) ---
+ apt-get install -y --no-install-recommends libltdl7 unixodbc; \
+ ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18; \
+ ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
+ \
+ # --- Cleanup: remove MS repo + build-only tools to reduce CVEs ---
+ rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg; \
+ apt-get purge -y --auto-remove gnupg; \
+ apt-get clean; rm -rf /var/lib/apt/lists/*
+# 4) Remove build-only packages & auto-remove deps to reduce attack surface
+RUN set -eux; \
+   apt-get purge -y --auto-remove gnupg; \
+   apt-get autoremove -y; \
+   apt-get clean; \
+   rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/lib/dpkg/*-old
+# --- copy your artifacts ---
 COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/fish-startup.sh
 COPY --from=build /app/test-api.sh $TOMCAT_HOME/bin/test-api.sh
 COPY --from=build /app/run-mssql-scripts.sh $TOMCAT_HOME/bin/run-mssql-scripts.sh
 COPY --from=build /app/database/ $TOMCAT_HOME/bin/database/
 COPY --from=build /app/tomcat/ $TOMCAT_HOME/conf/
 COPY --from=build /app/build/libs/*.war $TOMCAT_HOME/webapps/fish.war
-
-# Prepare Tomcat
-RUN mkdir $TOMCAT_HOME/cmd
-RUN chmod +x $TOMCAT_HOME/bin/*.sh
-
-# Webapp startup
-CMD ["fish-startup.sh"]
+RUN set -eux; mkdir -p "$TOMCAT_HOME/cmd"; chmod +x "$TOMCAT_HOME"/bin/*.sh
 EXPOSE 8080
+CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
