@@ -108,3 +108,6 @@ Dockerfile:48
 --------------------
 ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;   apt-get -o Acquire::Retries=5 update;   apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc libltdl7;   . /etc/os-release; mkdir -p /etc/apt/keyrings;   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;   echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME} main\" > /etc/apt/sources.list.d/mssql-release.list;   apt-get -o Acquire::Retries=5 update;   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;   ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;   (apt-mark showmanual | grep -q '^libcurl' && apt-get purge -y --auto-remove libcurl4t64 || true);   apt-get purge -y --auto-remove libpam-modules libpam-modules-bin libpam-runtime libpam0g libexpat1 expat locales;   apt-get autoremove -y;   apt-get clean; rm -rf /var/lib/apt/lists/* /var/cache/apt/*" did not complete successfully: exit code: 100
 
+$, '(', ')', ',', '.', '=', COMPOSITE_OPERATOR, FLOATING_POINT_LITERAL, IDENTIFIER, INTEGER_LITERAL, OTHER_PUNCT, QUOTE, SIMPLE_OPERATOR, VERSION_LITERAL, '[', ']', '{' or '}' expected, got '<<'
+
+
