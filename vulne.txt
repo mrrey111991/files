@@ -76,73 +76,66 @@ openssl 3.0.13-0ubuntu3.6
 locales 2.39-0ubuntu8.6
 expat 2.6.1-2ubuntu0.3
 
-#20 61.99 4 actionable tasks: 4 executed
-#20 DONE 62.6s
-#16 [sqltools 2/2] RUN set -eux;  apt-get -o Acquire::Retries=5 update;  apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc;  mkdir -p /etc/apt/keyrings;  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/microsoft-prod.list;  apt-get -o Acquire::Retries=5 update;  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18;  apt-get clean; rm -rf /var/lib/apt/lists/*
-#16 ...
-#21 [build 8/8] RUN ls -l ./build/libs && echo 1
-#21 0.130 total 65476
-#21 0.130 -rw-r--r-- 1 root root 67041481 Oct 17 10:46 fish-2.0.4-plain.war
-#21 0.131 1
-#21 DONE 0.1s
-#16 [sqltools 2/2] RUN set -eux;  apt-get -o Acquire::Retries=5 update;  apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc;  mkdir -p /etc/apt/keyrings;  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/microsoft-prod.list;  apt-get -o Acquire::Retries=5 update;  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18;  apt-get clean; rm -rf /var/lib/apt/lists/*
-#16 92.74 Err:1 http://deb.debian.org/debian bookworm InRelease
-#16 92.74   Could not connect to deb.debian.org:80 (151.101.78.132), connection timed out
-#16 92.74 Err:2 http://deb.debian.org/debian bookworm-updates InRelease
-#16 92.74   Unable to connect to deb.debian.org:80:
-#16 92.75 Err:3 http://deb.debian.org/debian-security bookworm-security InRelease
-#16 92.75   Unable to connect to deb.debian.org:80:
-#16 92.75 Reading package lists...
-#16 92.76 W: Failed to fetch http://deb.debian.org/debian/dists/bookworm/InRelease  Could not connect to deb.debian.org:80 (151.101.78.132), connection timed out
-#16 92.76 W: Failed to fetch http://deb.debian.org/debian/dists/bookworm-updates/InRelease  Unable to connect to deb.debian.org:80:
-#16 92.76 W: Failed to fetch http://deb.debian.org/debian-security/dists/bookworm-security/InRelease  Unable to connect to deb.debian.org:80:
-#16 92.76 W: Some index files failed to download. They have been ignored, or old ones used instead.
-#16 92.76 + apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc
-#16 92.76 Reading package lists...
-#16 92.77 Building dependency tree...
-#16 92.77 Reading state information...
-#16 92.77 Package ca-certificates is not available, but is referred to by another package.
-#16 92.77 This may mean that the package is missing, has been obsoleted, or
-#16 92.77 is only available from another source
-#16 92.77 
-#16 92.77 Package gnupg is not available, but is referred to by another package.
-#16 92.77 This may mean that the package is missing, has been obsoleted, or
-#16 92.77 is only available from another source
-#16 92.77 
-#16 92.77 E: Package 'ca-certificates' has no installation candidate
-#16 92.77 E: Package 'gnupg' has no installation candidate
-#16 92.77 E: Unable to locate package curl
-#16 92.77 E: Unable to locate package unixodbc
-#16 ERROR: process "/bin/sh -c set -eux;  apt-get -o Acquire::Retries=5 update;  apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc;  mkdir -p /etc/apt/keyrings;  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;  echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main\" > /etc/apt/sources.list.d/microsoft-prod.list;  apt-get -o Acquire::Retries=5 update;  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18;  apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+Run ls -al
+total 120
+drwxr-xr-x 10 runner runner 4096 Oct 17 11:14 .
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:14 ..
+drwxr-xr-x  7 runner runner 4096 Oct 17 11:14 .git
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:14 .github
+-rw-r--r--  1 runner runner  103 Oct 17 11:14 .gitignore
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:14 .idea
+-rw-r--r--  1 runner runner   32 Oct 17 11:14 CODEOWNERS
+-rw-r--r--  1 runner runner 2133 Oct 17 11:14 Dockerfile
+-rw-r--r--  1 runner runner  338 Oct 17 11:14 Jenkinsfile
+-rw-r--r--  1 runner runner 3464 Oct 17 11:14 build.gradle
+-rw-r--r--  1 runner runner 2342 Oct 17 11:14 custom-truststore.jks
+drwxr-xr-x 13 runner runner 4096 Oct 17 11:14 database
+-rw-r--r--  1 runner runner  143 Oct 17 11:14 file-build.sh
+-rw-r--r--  1 runner runner 7035 Oct 17 11:14 fish-startup.sh
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:14 gradle
+-rw-r--r--  1 runner runner  150 Oct 17 11:14 gradle.properties
+-rw-r--r--  1 runner runner 8692 Oct 17 11:14 gradlew
+-rw-r--r--  1 runner runner 2776 Oct 17 11:14 gradlew.bat
+-rw-r--r--  1 runner runner 5785 Oct 17 11:14 pre-build.sh
+drwxr-xr-x  2 runner runner 4096 Oct 17 11:14 props
+-rw-r--r--  1 runner runner 2185 Oct 17 11:14 run-mssql-scripts-test.sh
+-rw-r--r--  1 runner runner 2119 Oct 17 11:14 run-mssql-scripts.sh
+-rw-r--r--  1 runner runner   97 Oct 17 11:14 settings.gradle
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:14 src
+-rw-r--r--  1 runner runner  482 Oct 17 11:14 test-api.sh
+drwxr-xr-x  2 runner runner 4096 Oct 17 11:14 tomcat
+#0 building with "default" instance using docker driver
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.17kB done
+#1 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+#1 DONE 0.0s
+#2 [auth] openjdk:pull token for docker-pluk-common.pruregistry.intranet.asia:8443
+#2 DONE 0.0s
+#3 [auth] tomcat:pull token for docker-pluk-common.pruregistry.intranet.asia:8443
+#3 DONE 0.0s
+#4 [auth] mssql-tools:pull token for docker-pluk-common.pruregistry.intranet.asia:8443
+#4 DONE 0.0s
+#5 [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim
+#5 DONE 2.0s
+#6 [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04
+#6 ...
+#7 [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin
+#7 DONE 9.5s
+#6 [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04
+#6 ERROR: docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04: not found
 ------
- > [sqltools 2/2] RUN set -eux;  apt-get -o Acquire::Retries=5 update;  apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc;  mkdir -p /etc/apt/keyrings;  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/microsoft-prod.list;  apt-get -o Acquire::Retries=5 update;  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18;  apt-get clean; rm -rf /var/lib/apt/lists/*:
-92.77 is only available from another source
-92.77 
-92.77 Package gnupg is not available, but is referred to by another package.
-92.77 This may mean that the package is missing, has been obsoleted, or
-92.77 is only available from another source
-92.77 
-92.77 E: Package 'ca-certificates' has no installation candidate
-92.77 E: Package 'gnupg' has no installation candidate
-92.77 E: Unable to locate package curl
-92.77 E: Unable to locate package unixodbc
+ > [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04:
 ------
  1 warning found (use docker --debug to expand):
  - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:15
+Dockerfile:13
 --------------------
-  14 |     ENV DEBIAN_FRONTEND=noninteractive
-  15 | >>> RUN set -eux; \
-  16 | >>>  apt-get -o Acquire::Retries=5 update; \
-  17 | >>>  apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc; \
-  18 | >>>  mkdir -p /etc/apt/keyrings; \
-  19 | >>>  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
-  20 | >>>  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" \
-  21 | >>> > /etc/apt/sources.list.d/microsoft-prod.list; \
-  22 | >>>  apt-get -o Acquire::Retries=5 update; \
-  23 | >>>  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18; \
-  24 | >>>  apt-get clean; rm -rf /var/lib/apt/lists/*
-  25 |     # 3) Runtime: Tomcat (Debian-based), NO apt here
+  11 |     # --- Production stage ---
+  12 |     # SQL tools stage (Debian 12): install mssql-tools18 + msodbcsql18 here
+  13 | >>> FROM docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04 AS sqltools
+  14 |     # Runtime: Tomcat (Debian-based), still no apt
+  15 |     FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS runtime
 --------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;  apt-get -o Acquire::Retries=5 update;  apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc;  mkdir -p /etc/apt/keyrings;  curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;  echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/12/prod bookworm main\" > /etc/apt/sources.list.d/microsoft-prod.list;  apt-get -o Acquire::Retries=5 update;  ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18;  apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+ERROR: failed to build: failed to solve: docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04: failed to resolve source metadata for docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04: docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04: not found
 Error: Process completed with exit code 1.
+
