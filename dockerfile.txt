@@ -96,16 +96,7 @@ CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
 
 
 
-# ===== Build stage =====
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim AS build
-WORKDIR /app
-COPY . .
-RUN chmod +x ./pre-build.sh ./gradlew
-RUN ./pre-build.sh reset
-RUN ./gradlew build --no-daemon
-RUN ls -l ./build/libs
-
-# ===== Runtime: Tomcat (Debian-based in your registry), NO apt here =====
+# --- Runtime stage (your existing FROM is fine) ---
 FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS runtime
 ENV TOMCAT_HOME=/usr/local/tomcat \
     LANG=C.UTF-8 LC_ALL=C.UTF-8 \
@@ -115,14 +106,14 @@ ENV TOMCAT_HOME=/usr/local/tomcat \
 # Clean default apps
 RUN set -eux; rm -rf "$TOMCAT_HOME"/webapps/*
 
-# ---- Bring in vendored sqlcmd payload (no network, no apt) ----
-COPY vendor/sqlcmd-root/opt/mssql-tools18               /opt/mssql-tools18
-COPY vendor/sqlcmd-root/opt/microsoft                   /opt/microsoft
-COPY vendor/sqlcmd-root/usr/lib/x86_64-linux-gnu/       /usr/lib/x86_64-linux-gnu/
-COPY vendor/sqlcmd-root/etc/odbcinst.ini                /etc/odbcinst.ini
-RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
+# ---- Install sqlcmd payload (no network) ----
+# This expands to /opt/mssql-tools18, /opt/microsoft, /usr/lib/..., /etc/odbcinst.ini
+ADD vendor/sqlcmd18-rootfs.tar.gz /
 
-# ---- Your app ----
+RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd \
+ && /usr/local/bin/sqlcmd -? >/dev/null || true
+
+# ---- Your app (unchanged) ----
 COPY --from=build /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
 COPY --from=build /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
 COPY --from=build /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
@@ -133,5 +124,6 @@ COPY --from=build /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
 RUN set -eux; chmod +x "$TOMCAT_HOME"/bin/*.sh
 EXPOSE 8080
 CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
+
 
 
