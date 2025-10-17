@@ -96,47 +96,51 @@ CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
 
 
 
-FROM ubuntu:24.04 AS sqltools
-ENV DEBIAN_FRONTEND=noninteractive
+# =========================
+# 1) BUILD STAGE
+# =========================
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim AS build
+WORKDIR /app
+COPY . .
+RUN chmod +x ./pre-build.sh ./gradlew
+RUN ./pre-build.sh reset && ./gradlew build --no-daemon
+RUN ls -l ./build/libs
 
-# Prepare and install only what's required for sqlcmd
-RUN set -eux; \
-    apt-get -o Acquire::Retries=5 update; \
-    apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc; \
-    mkdir -p /etc/apt/keyrings; \
-    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" \
-      > /etc/apt/sources.list.d/mssql-release.list; \
-    apt-get -o Acquire::Retries=5 update; \
-    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18; \
-    # confirm works
-    /opt/mssql-tools18/bin/sqlcmd -? >/dev/null || true; \
-    apt-get clean; rm -rf /var/lib/apt/lists/*
-
-# =====================================
-# 3) RUNTIME STAGE (Tomcat on Debian)
-#    Copies only minimal sqlcmd bits
-# =====================================
+# =========================
+# 2) RUNTIME (Debian-based Tomcat) — NO APT
+# =========================
 FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS runtime
-
 ENV TOMCAT_HOME=/usr/local/tomcat \
     LANG=C.UTF-8 LC_ALL=C.UTF-8 \
     PATH="/opt/mssql-tools18/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/microsoft/msodbcsql18/lib64:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
 
-# Clean default Tomcat apps
+# Clean default apps
 RUN set -eux; rm -rf "$TOMCAT_HOME"/webapps/*
 
-# Copy only the necessary sqlcmd binaries and ODBC libs (no apt in final image)
-COPY --from=sqltools /opt/mssql-tools18 /opt/mssql-tools18
-COPY --from=sqltools /opt/microsoft     /opt/microsoft
-COPY --from=sqltools /etc/odbcinst.ini  /etc/odbcinst.ini
-COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libodbc.so.*     /usr/lib/x86_64-linux-gnu/
-COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libodbcinst.so.* /usr/lib/x86_64-linux-gnu/
-COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libltdl.so.*     /usr/lib/x86_64-linux-gnu/
-RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
+# ---- REQUIRE the vendor tarball; fail with a clear message if missing ----
+# Expect this file in your repo: vendor/sqlcmd18-rootfs.tar.gz
+# It must unpack to:
+#   /opt/mssql-tools18/... (contains bin/sqlcmd)
+#   /opt/microsoft/msodbcsql18/lib64/libmsodbcsql-18*.so
+#   /usr/lib/x86_64-linux-gnu/libodbc.so.2, libodbcinst.so.2, libltdl.so.7
+#   (optional) /etc/odbcinst.ini
+RUN test -f /vendor/sqlcmd18-rootfs.tar.gz || (echo >&2 "ERROR: Missing vendor/sqlcmd18-rootfs.tar.gz in build context. Create it once (from an mssql-tools image) and commit it."; exit 1)
 
-# Copy your built app
+# Add the payload (no network)
+ADD vendor/sqlcmd18-rootfs.tar.gz /
+
+# Ensure sqlcmd is on PATH; create odbcinst if the tarball didn’t include it
+RUN set -eux; \
+    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
+    if [ ! -s /etc/odbcinst.ini ]; then \
+      echo '[ODBC Driver 18 for SQL Server]' > /etc/odbcinst.ini; \
+      echo 'Description=Microsoft ODBC Driver 18 for SQL Server' >> /etc/odbcinst.ini; \
+      echo 'Driver=/opt/microsoft/msodbcsql18/lib64/libmsodbcsql-18.so' >> /etc/odbcinst.ini; \
+    fi; \
+    /usr/local/bin/sqlcmd -? >/dev/null || true
+
+# ---- Your app ----
 COPY --from=build /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
 COPY --from=build /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
 COPY --from=build /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
@@ -144,10 +148,10 @@ COPY --from=build /app/database/               $TOMCAT_HOME/bin/database/
 COPY --from=build /app/tomcat/                 $TOMCAT_HOME/conf/
 COPY --from=build /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
 
-# Final setup
 RUN set -eux; chmod +x "$TOMCAT_HOME"/bin/*.sh
 EXPOSE 8080
 CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
+
 
 
 
