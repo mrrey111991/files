@@ -76,49 +76,108 @@ openssl 3.0.13-0ubuntu3.6
 locales 2.39-0ubuntu8.6
 expat 2.6.1-2ubuntu0.3
 
-#10 [runtime  3/14] COPY vendor/sqlcmd-root/opt/mssql-tools18               /opt/mssql-tools18
-#10 ERROR: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::3i6tcgui1kr06hlhg7g9y4dux: "/vendor/sqlcmd-root/opt/mssql-tools18": not found
+Run ls -al
+total 120
+drwxr-xr-x 10 runner runner 4096 Oct 17 11:26 .
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:26 ..
+drwxr-xr-x  7 runner runner 4096 Oct 17 11:26 .git
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:26 .github
+-rw-r--r--  1 runner runner  103 Oct 17 11:26 .gitignore
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:26 .idea
+-rw-r--r--  1 runner runner   32 Oct 17 11:26 CODEOWNERS
+-rw-r--r--  1 runner runner 1545 Oct 17 11:26 Dockerfile
+-rw-r--r--  1 runner runner  338 Oct 17 11:26 Jenkinsfile
+-rw-r--r--  1 runner runner 3464 Oct 17 11:26 build.gradle
+-rw-r--r--  1 runner runner 2342 Oct 17 11:26 custom-truststore.jks
+drwxr-xr-x 13 runner runner 4096 Oct 17 11:26 database
+-rw-r--r--  1 runner runner  143 Oct 17 11:26 file-build.sh
+-rw-r--r--  1 runner runner 7035 Oct 17 11:26 fish-startup.sh
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:26 gradle
+-rw-r--r--  1 runner runner  150 Oct 17 11:26 gradle.properties
+-rw-r--r--  1 runner runner 8692 Oct 17 11:26 gradlew
+-rw-r--r--  1 runner runner 2776 Oct 17 11:26 gradlew.bat
+-rw-r--r--  1 runner runner 5785 Oct 17 11:26 pre-build.sh
+drwxr-xr-x  2 runner runner 4096 Oct 17 11:26 props
+-rw-r--r--  1 runner runner 2185 Oct 17 11:26 run-mssql-scripts-test.sh
+-rw-r--r--  1 runner runner 2119 Oct 17 11:26 run-mssql-scripts.sh
+-rw-r--r--  1 runner runner   97 Oct 17 11:26 settings.gradle
+drwxr-xr-x  3 runner runner 4096 Oct 17 11:26 src
+-rw-r--r--  1 runner runner  482 Oct 17 11:26 test-api.sh
+drwxr-xr-x  2 runner runner 4096 Oct 17 11:26 tomcat
+#0 building with "default" instance using docker driver
 
-#11 [runtime  1/14] FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin@sha256:f0c38d69bf1781bbb87bf1e17b851d5853d8fa0fb3d8284b22d687340af7950b
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.58kB done
+#1 WARN: FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
+#1 DONE 0.0s
+
+#2 [auth] openjdk:pull token for docker-pluk-common.pruregistry.intranet.asia:8443
+#2 DONE 0.0s
+
+#3 [auth] tomcat:pull token for docker-pluk-common.pruregistry.intranet.asia:8443
+#3 DONE 0.0s
+
+#4 [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim
+#4 DONE 2.3s
+
+#5 [internal] load metadata for docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin
+#5 DONE 3.3s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 2B done
+#6 DONE 0.0s
+
+#7 [build 1/8] FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim@sha256:7072053847a8a05d7f3a14ebc778a90b38c50ce7e8f199382128a53385160688
+#7 resolve docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim@sha256:7072053847a8a05d7f3a14ebc778a90b38c50ce7e8f199382128a53385160688 done
+#7 sha256:7072053847a8a05d7f3a14ebc778a90b38c50ce7e8f199382128a53385160688 547B / 547B done
+#7 sha256:e088daf5e2873f2880c7242c6f0efaa68da81f560783e3e1049ba57ca152e20a 953B / 953B done
+#7 sha256:a48f4cb737303e18b873b859fa7b779610a67a01e2d33c0b453d05fc1a4bb7b0 4.77kB / 4.77kB done
+#7 ...
+
+#8 [internal] load build context
+#8 transferring context: 43.01MB 1.6s done
+#8 DONE 1.7s
+
+#9 [runtime  2/11] RUN set -eux; rm -rf "/usr/local/tomcat"/webapps/*
+#9 CACHED
+
+#10 [runtime  3/11] ADD vendor/sqlcmd18-rootfs.tar.gz /
+#10 ERROR: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::basps1eqgaknc09lt3ojc83yl: "/vendor/sqlcmd18-rootfs.tar.gz": not found
+
+#11 [runtime  1/11] FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin@sha256:f0c38d69bf1781bbb87bf1e17b851d5853d8fa0fb3d8284b22d687340af7950b
 #11 resolve docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin@sha256:f0c38d69bf1781bbb87bf1e17b851d5853d8fa0fb3d8284b22d687340af7950b done
+#11 sha256:0c474f64746d27f2879d262f6299fbbf510deb0689105ba567ba62c6760583d3 52.97MB / 52.97MB 1.5s done
+#11 sha256:d4f38e2e092670ef283f8cef3be87ca664b534a953c460e93cfc9ffeebbc8224 16.97MB / 16.97MB 0.5s done
 #11 sha256:f0c38d69bf1781bbb87bf1e17b851d5853d8fa0fb3d8284b22d687340af7950b 6.64kB / 6.64kB done
-#11 sha256:402a59e07385da1b24c50fc07d861fb07251ba4fa3a11e8bb801c7f9704822bc 9.12kB / 9.12kB done
 #11 sha256:2578b3722fabf0ef982e358efc3d33bb268e9bf12598cd3cf321aea70505af7e 2.91kB / 2.91kB done
-#11 sha256:4b3ffd8ccb5201a0fc03585952effb4ed2d1ea5e704d2e7330212fb8b16c86a3 20.97MB / 29.72MB 1.6s
+#11 sha256:402a59e07385da1b24c50fc07d861fb07251ba4fa3a11e8bb801c7f9704822bc 9.12kB / 9.12kB done
+#11 sha256:4b3ffd8ccb5201a0fc03585952effb4ed2d1ea5e704d2e7330212fb8b16c86a3 29.72MB / 29.72MB 0.5s done
+#11 sha256:0d1e9704d175f236f24573f3263c46c98ce312c06751ec7feb8aa18adda6c39e 159B / 159B 0.5s done
+#11 sha256:2326993b9fe603f4efecedec459c92a6f5cbddca94dc55593db837055ac2e4e8 2.28kB / 2.28kB 0.6s done
+#11 sha256:83d341d21aec0e325aa93e6e34c1e94774544bf1e9f2285d83b2461f5479e5b2 0B / 138B 1.6s
+#11 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 32B / 32B 0.6s done
+#11 extracting sha256:4b3ffd8ccb5201a0fc03585952effb4ed2d1ea5e704d2e7330212fb8b16c86a3 1.0s
+#11 sha256:71479bdef7ae9f3fc44e73ef82fbba06577241313f9391ae029efeae35f28ddb 0B / 14.09MB 1.6s
+#11 sha256:4b33f75a112c344238bab99a8a9a805229970dcf36638a014f7cdbce5d6bada1 0B / 224.72kB 1.6s
 #11 ...
 
-#12 [runtime  4/14] COPY vendor/sqlcmd-root/opt/microsoft                   /opt/microsoft
-#12 ERROR: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::3i6tcgui1kr06hlhg7g9y4dux: "/vendor/sqlcmd-root/opt/microsoft": not found
-
-#13 [runtime  6/14] COPY vendor/sqlcmd-root/etc/odbcinst.ini                /etc/odbcinst.ini
-#13 ERROR: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::3i6tcgui1kr06hlhg7g9y4dux: "/vendor/sqlcmd-root/etc/odbcinst.ini": not found
-
-#14 [runtime  5/14] COPY vendor/sqlcmd-root/usr/lib/x86_64-linux-gnu/       /usr/lib/x86_64-linux-gnu/
-#14 ERROR: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::3i6tcgui1kr06hlhg7g9y4dux: "/vendor/sqlcmd-root/usr/lib/x86_64-linux-gnu": not found
+#7 [build 1/8] FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim@sha256:7072053847a8a05d7f3a14ebc778a90b38c50ce7e8f199382128a53385160688
+#7 CANCELED
 ------
- > [runtime  3/14] COPY vendor/sqlcmd-root/opt/mssql-tools18               /opt/mssql-tools18:
-------
-------
- > [runtime  4/14] COPY vendor/sqlcmd-root/opt/microsoft                   /opt/microsoft:
-------
-------
- > [runtime  5/14] COPY vendor/sqlcmd-root/usr/lib/x86_64-linux-gnu/       /usr/lib/x86_64-linux-gnu/:
-------
-------
- > [runtime  6/14] COPY vendor/sqlcmd-root/etc/odbcinst.ini                /etc/odbcinst.ini:
+ > [runtime  3/11] ADD vendor/sqlcmd18-rootfs.tar.gz /:
 ------
 
  1 warning found (use docker --debug to expand):
  - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:25
+Dockerfile:23
 --------------------
-  23 |     COPY vendor/sqlcmd-root/opt/microsoft                   /opt/microsoft
-  24 |     COPY vendor/sqlcmd-root/usr/lib/x86_64-linux-gnu/       /usr/lib/x86_64-linux-gnu/
-  25 | >>> COPY vendor/sqlcmd-root/etc/odbcinst.ini                /etc/odbcinst.ini
-  26 |     RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
-  27 |     
+  21 |     # ---- Install sqlcmd payload (no network) ----
+  22 |     # This expands to /opt/mssql-tools18, /opt/microsoft, /usr/lib/..., /etc/odbcinst.ini
+  23 | >>> ADD vendor/sqlcmd18-rootfs.tar.gz /
+  24 |     
+  25 |     RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd \
 --------------------
-ERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::3i6tcgui1kr06hlhg7g9y4dux: "/vendor/sqlcmd-root/etc/odbcinst.ini": not found
+ERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref ac1187db-1850-4397-a0f7-3b6e6ef293d6::basps1eqgaknc09lt3ojc83yl: "/vendor/sqlcmd18-rootfs.tar.gz": not found
 Error: Process completed with exit code 1.
 
 
