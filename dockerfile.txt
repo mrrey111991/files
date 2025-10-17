@@ -96,24 +96,47 @@ CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
 
 
 
-# --- Runtime stage (your existing FROM is fine) ---
+FROM ubuntu:24.04 AS sqltools
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Prepare and install only what's required for sqlcmd
+RUN set -eux; \
+    apt-get -o Acquire::Retries=5 update; \
+    apt-get install -y --no-install-recommends ca-certificates gnupg curl unixodbc; \
+    mkdir -p /etc/apt/keyrings; \
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" \
+      > /etc/apt/sources.list.d/mssql-release.list; \
+    apt-get -o Acquire::Retries=5 update; \
+    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18 msodbcsql18; \
+    # confirm works
+    /opt/mssql-tools18/bin/sqlcmd -? >/dev/null || true; \
+    apt-get clean; rm -rf /var/lib/apt/lists/*
+
+# =====================================
+# 3) RUNTIME STAGE (Tomcat on Debian)
+#    Copies only minimal sqlcmd bits
+# =====================================
 FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS runtime
+
 ENV TOMCAT_HOME=/usr/local/tomcat \
     LANG=C.UTF-8 LC_ALL=C.UTF-8 \
     PATH="/opt/mssql-tools18/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/microsoft/msodbcsql18/lib64:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
 
-# Clean default apps
+# Clean default Tomcat apps
 RUN set -eux; rm -rf "$TOMCAT_HOME"/webapps/*
 
-# ---- Install sqlcmd payload (no network) ----
-# This expands to /opt/mssql-tools18, /opt/microsoft, /usr/lib/..., /etc/odbcinst.ini
-ADD vendor/sqlcmd18-rootfs.tar.gz /
+# Copy only the necessary sqlcmd binaries and ODBC libs (no apt in final image)
+COPY --from=sqltools /opt/mssql-tools18 /opt/mssql-tools18
+COPY --from=sqltools /opt/microsoft     /opt/microsoft
+COPY --from=sqltools /etc/odbcinst.ini  /etc/odbcinst.ini
+COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libodbc.so.*     /usr/lib/x86_64-linux-gnu/
+COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libodbcinst.so.* /usr/lib/x86_64-linux-gnu/
+COPY --from=sqltools /usr/lib/x86_64-linux-gnu/libltdl.so.*     /usr/lib/x86_64-linux-gnu/
+RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd
 
-RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd \
- && /usr/local/bin/sqlcmd -? >/dev/null || true
-
-# ---- Your app (unchanged) ----
+# Copy your built app
 COPY --from=build /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
 COPY --from=build /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
 COPY --from=build /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
@@ -121,9 +144,11 @@ COPY --from=build /app/database/               $TOMCAT_HOME/bin/database/
 COPY --from=build /app/tomcat/                 $TOMCAT_HOME/conf/
 COPY --from=build /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
 
+# Final setup
 RUN set -eux; chmod +x "$TOMCAT_HOME"/bin/*.sh
 EXPOSE 8080
 CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
+
 
 
 
