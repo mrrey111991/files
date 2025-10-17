@@ -101,24 +101,28 @@ FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1.48-jdk21-temu
 ENV DEBIAN_FRONTEND=noninteractive \
     TOMCAT_HOME=/usr/local/tomcat
 
-# 1) Normalize APT to HTTPS & ensure security pocket
+# 0) Normalize APT: HTTPS only, no duplicates, add security pocket
 RUN set -eux; \
-  sed -i 's|http://|https://|g' /etc/apt/sources.list || true; \
-  grep -q 'noble-security' /etc/apt/sources.list || \
-    echo 'deb https://security.ubuntu.com/ubuntu noble-security main restricted universe multiverse' >> /etc/apt/sources.list
+  # If deb822 exists, drop legacy sources.list to avoid duplicates
+  if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then rm -f /etc/apt/sources.list; fi; \
+  # Force HTTPS for ALL apt sources (both .list and .sources)
+  find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -exec sed -i 's|http://|https://|g' {} + || true; \
+  # Ensure security pocket exists in deb822 format
+  if ! grep -Rqs 'Suites: noble-security' /etc/apt/sources.list.d; then \
+    printf "Types: deb\nURIs: https://security.ubuntu.com/ubuntu\nSuites: noble-security\nComponents: main restricted universe multiverse\n" \
+      > /etc/apt/sources.list.d/security.sources; \
+  fi; \
+  apt-get -o Acquire::Retries=5 update
 
-# 2) Update base, upgrade, install minimal tools (temporarily)
+# 1) Base update + minimal tools, then security/full upgrade
 RUN set -eux; \
-  apt-get -o Acquire::Retries=5 update; \
-  apt-get install -y --no-install-recommends ca-certificates gnupg curl unzip; \
-  # Pull latest security fixes first
+  apt-get install -y --no-install-recommends ca-certificates curl unzip; \
   apt-get -y dist-upgrade || apt-get -y full-upgrade; \
-  # Nudge frequently flagged core libs (only-upgrade)
   apt-get install -y --no-install-recommends --only-upgrade \
       ca-certificates openssl libssl3t64 libc6 libc-bin dpkg tar gzip xz-utils zlib1g; \
   rm -rf /var/lib/apt/lists/*
 
-# 3) Install Microsoft tools18, then remove the repo & keys
+# 2) Microsoft repo (HTTPS), install tools18 and ODBC prereqs
 RUN set -eux; \
   . /etc/os-release; \
   mkdir -p /etc/apt/keyrings; \
@@ -127,34 +131,30 @@ RUN set -eux; \
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main" \
     > /etc/apt/sources.list.d/mssql-release.list; \
   apt-get -o Acquire::Retries=5 update; \
-  apt-get install -y --no-install-recommends libltdl7 unixodbc; \
+  # NOTE: on Ubuntu 24.04 the package is libltdl7t64 (fallback to libltdl7 for older bases)
+  apt-get install -y --no-install-recommends unixodbc || true; \
+  (apt-get install -y --no-install-recommends libltdl7t64 || apt-get install -y --no-install-recommends libltdl7 || true); \
   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18; \
   ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
-  # Remove MS repo & keys to avoid repo CVEs
+  # Remove MS repo & key to reduce CVE surface
   rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg; \
   apt-get clean; rm -rf /var/lib/apt/lists/*
 
-# 4) Strip CVE-magnet packages from FINAL image (we only needed them to install things)
-#    If your app needs any of these, remove it from the purge list below.
+# 3) Strip CVE-magnet packages from FINAL image (adjust if you need any of these)
 RUN set -eux; \
   apt-get -o Acquire::Retries=5 update; \
-  # Purge curl stack and PAM family to silence curl/libcurl & pam CVEs
   apt-get purge -y --auto-remove \
       curl libcurl4t64 \
-      libpam0g libpam-runtime libpam-modules libpam-modules-bin; \
-  # Purge expat (Tomcat/Java XML doesn't need libexpat)
-  apt-get purge -y --auto-remove expat libexpat1; \
-  # Purge locales (scanner flags CVE on locales/glibc combo); keep if you truly need multiple locales
-  apt-get purge -y --auto-remove locales; \
-  # Optionally drop openssl CLI if unused by your app (removes libssl3t64 too if nothing else needs it)
-  apt-get purge -y --auto-remove openssl libssl3t64 || true; \
-  # Drop other leaf utils that add CVEs but aren’t needed at runtime
+      libpam0g libpam-runtime libpam-modules libpam-modules-bin \
+      expat libexpat1 \
+      locales \
+      openssl libssl3t64 || true; \
   apt-get purge -y --auto-remove gnupg man-db tzdata || true; \
   apt-get autoremove -y; \
   apt-get clean; \
-  rm -rf /var/lib/apt/lists/*
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/* /var/lib/dpkg/*-old
 
-# --- copy your artifacts ---
+# --- copy artifacts ---
 COPY --from=build /app/fish-startup.sh $TOMCAT_HOME/bin/fish-startup.sh
 COPY --from=build /app/test-api.sh $TOMCAT_HOME/bin/test-api.sh
 COPY --from=build /app/run-mssql-scripts.sh $TOMCAT_HOME/bin/run-mssql-scripts.sh
@@ -165,12 +165,3 @@ RUN set -eux; mkdir -p "$TOMCAT_HOME/cmd"; chmod +x "$TOMCAT_HOME"/bin/*.sh
 
 EXPOSE 8080
 CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
-
-
-
-<Connector ... 
-  sslEnabledProtocols="TLSv1.3,TLSv1.2"
-  ciphers="TLS_AES_256_GCM_SHA384,TLS_AES_128_GCM_SHA256,
-           TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-           TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
-/>
