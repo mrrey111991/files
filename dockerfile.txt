@@ -96,41 +96,87 @@ CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
 
 
 
-# =========================
-# 1) BUILD STAGE
-# =========================
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim AS build
+# =====================================
+# 1) BUILD STAGE (build your WAR)
+# =====================================
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/openjdk:21-jdk-slim AS BUILD
 WORKDIR /app
+
+# Copy sources and build
 COPY . .
 RUN chmod +x ./pre-build.sh ./gradlew
 RUN ./pre-build.sh reset && ./gradlew build --no-daemon
 RUN ls -l ./build/libs
 
-# =========================
-# 2) RUNTIME (Debian-based Tomcat) — NO APT
-# =========================
-FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS runtime
+# =====================================
+# 2) OPTIONAL SQLTOOLS STAGE (image source)
+#    Use a mirrored image that already contains mssql-tools18 + msodbcsql18.
+#    Override SQLTOOLS_IMAGE at build time if needed.
+#    Example:
+#      --build-arg SQLTOOLS_IMAGE=docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04
+# =====================================
+ARG SQLTOOLS_IMAGE=docker-pluk-common.pruregistry.intranet.asia:8443/mssql-tools:18-ubuntu-22.04
+FROM ${SQLTOOLS_IMAGE} AS SQLTOOLS
+
+# =====================================
+# 3) RUNTIME BASE (Debian Tomcat), shared by both final targets
+# =====================================
+FROM docker-pluk-common.pruregistry.intranet.asia:8443/tomcat:10.1-jre21-temurin AS RUNTIME_BASE
+
 ENV TOMCAT_HOME=/usr/local/tomcat \
-    LANG=C.UTF-8 LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
     PATH="/opt/mssql-tools18/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/microsoft/msodbcsql18/lib64:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
 
-# Clean default apps
+# Drop default Tomcat webapps to reduce surface
 RUN set -eux; rm -rf "$TOMCAT_HOME"/webapps/*
 
-# ---- REQUIRE the vendor tarball; fail with a clear message if missing ----
-# Expect this file in your repo: vendor/sqlcmd18-rootfs.tar.gz
-# It must unpack to:
-#   /opt/mssql-tools18/... (contains bin/sqlcmd)
-#   /opt/microsoft/msodbcsql18/lib64/libmsodbcsql-18*.so
-#   /usr/lib/x86_64-linux-gnu/libodbc.so.2, libodbcinst.so.2, libltdl.so.7
-#   (optional) /etc/odbcinst.ini
-RUN test -f /vendor/sqlcmd18-rootfs.tar.gz || (echo >&2 "ERROR: Missing vendor/sqlcmd18-rootfs.tar.gz in build context. Create it once (from an mssql-tools image) and commit it."; exit 1)
+# =====================================
+# 4A) FINAL RUNTIME (Path A): copy sqlcmd from mirrored image
+#     Build with:  --target runtime-sqltools
+# =====================================
+FROM RUNTIME_BASE AS runtime-sqltools
 
-# Add the payload (no network)
+# Copy only minimal runtime bits for sqlcmd (no apt in final image)
+COPY --from=SQLTOOLS /opt/mssql-tools18 /opt/mssql-tools18
+COPY --from=SQLTOOLS /opt/microsoft     /opt/microsoft
+# ODBC config and runtime libs
+COPY --from=SQLTOOLS /etc/odbcinst.ini  /etc/odbcinst.ini
+COPY --from=SQLTOOLS /usr/lib/x86_64-linux-gnu/libodbc.so.*     /usr/lib/x86_64-linux-gnu/
+COPY --from=SQLTOOLS /usr/lib/x86_64-linux-gnu/libodbcinst.so.* /usr/lib/x86_64-linux-gnu/
+COPY --from=SQLTOOLS /usr/lib/x86_64-linux-gnu/libltdl.so.*     /usr/lib/x86_64-linux-gnu/
+
+# Convenience symlink + smoke test (non-fatal)
+RUN ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd \
+ && /usr/local/bin/sqlcmd -? >/dev/null || true
+
+# App artifacts
+COPY --from=BUILD /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
+COPY --from=BUILD /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
+COPY --from=BUILD /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
+COPY --from=BUILD /app/database/               $TOMCAT_HOME/bin/database/
+COPY --from=BUILD /app/tomcat/                 $TOMCAT_HOME/conf/
+COPY --from=BUILD /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
+
+RUN set -eux; chmod +x "$TOMCAT_HOME"/bin/*.sh
+EXPOSE 8080
+CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
+
+# =====================================
+# 4B) FINAL RUNTIME (Path B): vendor tarball
+#     Build with:  --target runtime-vendor
+#     Requires: vendor/sqlcmd18-rootfs.tar.gz in build context
+# =====================================
+FROM RUNTIME_BASE AS runtime-vendor
+
+# Fail early with a clear message if the tarball is missing
+RUN test -f /vendor/sqlcmd18-rootfs.tar.gz || (echo >&2 "ERROR: Missing vendor/sqlcmd18-rootfs.tar.gz in build context. Create it once from an mssql-tools image and commit it."; exit 1)
+
+# Unpack pre-bundled sqlcmd runtime (no network)
 ADD vendor/sqlcmd18-rootfs.tar.gz /
 
-# Ensure sqlcmd is on PATH; create odbcinst if the tarball didn’t include it
+# Ensure sqlcmd is available and odbcinst.ini exists
 RUN set -eux; \
     ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
     if [ ! -s /etc/odbcinst.ini ]; then \
@@ -140,19 +186,14 @@ RUN set -eux; \
     fi; \
     /usr/local/bin/sqlcmd -? >/dev/null || true
 
-# ---- Your app ----
-COPY --from=build /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
-COPY --from=build /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
-COPY --from=build /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
-COPY --from=build /app/database/               $TOMCAT_HOME/bin/database/
-COPY --from=build /app/tomcat/                 $TOMCAT_HOME/conf/
-COPY --from=build /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
+# App artifacts
+COPY --from=BUILD /app/fish-startup.sh         $TOMCAT_HOME/bin/fish-startup.sh
+COPY --from=BUILD /app/test-api.sh             $TOMCAT_HOME/bin/test-api.sh
+COPY --from=BUILD /app/run-mssql-scripts.sh    $TOMCAT_HOME/bin/run-mssql-scripts.sh
+COPY --from=BUILD /app/database/               $TOMCAT_HOME/bin/database/
+COPY --from=BUILD /app/tomcat/                 $TOMCAT_HOME/conf/
+COPY --from=BUILD /app/build/libs/*.war        $TOMCAT_HOME/webapps/fish.war
 
 RUN set -eux; chmod +x "$TOMCAT_HOME"/bin/*.sh
 EXPOSE 8080
 CMD ["/usr/local/tomcat/bin/fish-startup.sh"]
-
-
-
-
-
