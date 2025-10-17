@@ -8,8 +8,6 @@ libsqlite3-0 3.45.1-1ubuntu2.4
 libc-bin 2.39-0ubuntu8.5
 sqlite3 3.45.1-1ubuntu2.4
 
-ubuntu:rolling
-eclipse-temurin:latest
 
 HIGH
 libcurl4t64 8.5.0-2ubuntu10.6
@@ -62,103 +60,8 @@ libexpat1 2.6.1-2ubuntu0.3 CVE-2025-59375
 libc-bin 2.39-0ubuntu8.6 CVE-2016-20013
 expat 2.6.1-2ubuntu0.3 CVE-2025-59375
 
-#18 [stage-1  4/12] RUN set -eux;    VERSION_ID="$(. /etc/os-release; echo "${VERSION_ID}")";    CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME:-noble}")";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*
-#18 32.52 Ign:9 http://archive.ubuntu.com/ubuntu noble InRelease
-#18 32.52 Ign:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-#18 32.52 Ign:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-#18 33.52 Ign:9 http://archive.ubuntu.com/ubuntu noble InRelease
-#18 33.53 Ign:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-#18 33.53 Ign:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-#18 35.53 Ign:9 http://archive.ubuntu.com/ubuntu noble InRelease
-#18 35.53 Ign:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-#18 35.54 Ign:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-#18 39.73 Err:9 http://archive.ubuntu.com/ubuntu noble InRelease
-#18 39.73   Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out
-#18 39.73 Err:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-#18 39.73   Unable to connect to archive.ubuntu.com:80:
-#18 39.74 Err:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-#18 39.74   Unable to connect to archive.ubuntu.com:80:
-#18 39.74 Fetched 5,421 kB in 39s (138 kB/s)
-#18 39.74 Reading package lists...
-#18 39.92 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out
-#18 39.92 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to archive.ubuntu.com:80:
-#18 39.92 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to archive.ubuntu.com:80:
-#18 39.92 W: Some index files failed to download. They have been ignored, or old ones used instead.
-#18 39.92 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 39.92 + ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18
-#18 39.93 Reading package lists...
-#18 40.10 Building dependency tree...
-#18 40.11 Reading state information...
-#18 40.12 Some packages could not be installed. This may mean that you have
-#18 40.12 requested an impossible situation or if you are using the unstable
-#18 40.12 distribution that some required packages have not yet been created
-#18 40.12 or been moved out of Incoming.
-#18 40.12 The following information may help to resolve the situation:
-#18 40.12 
-#18 40.12 The following packages have unmet dependencies:
-#18 40.13  libodbc2 : Depends: libltdl7 (>= 2.4.7) but it is not installable
-#18 40.13  libodbcinst2 : Depends: libltdl7 (>= 2.4.7) but it is not installable
-#18 40.13 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#18 40.13 E: Unable to correct problems, you have held broken packages.
-#18 ERROR: process "/bin/sh -c set -eux;    VERSION_ID=\"$(. /etc/os-release; echo \"${VERSION_ID}\")\";    CODENAME=\"$(. /etc/os-release; echo \"${VERSION_CODENAME:-noble}\")\";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-------
- > [stage-1  4/12] RUN set -eux;    VERSION_ID="$(. /etc/os-release; echo "${VERSION_ID}")";    CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME:-noble}")";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*:
-40.13  libodbcinst2 : Depends: libltdl7 (>= 2.4.7) but it is not installable
-40.13 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-40.13 E: Unable to correct problems, you have held broken packages.
-------
 
- 1 warning found (use docker --debug to expand):
- - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:36
---------------------
-  35 |     # 3) Microsoft repo (Ubuntu, not Debian) just long enough to install tools18
-  36 | >>> RUN set -eux; \
-  37 | >>>    VERSION_ID="$(. /etc/os-release; echo "${VERSION_ID}")"; \
-  38 | >>>    CODENAME="$(. /etc/os-release; echo "${VERSION_CODENAME:-noble}")"; \
-  39 | >>>    mkdir -p /etc/apt/keyrings; \
-  40 | >>>    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-  41 | >>>      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
-  42 | >>>    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main" \
-  43 | >>> > /etc/apt/sources.list.d/mssql-release.list; \
-  44 | >>>    apt-get update; \
-  45 | >>>    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18; \
-  46 | >>>    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
-  47 | >>>    # Remove MS repo so it can’t pin older libs later
-  48 | >>>    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg; \
-  49 | >>>    apt-get clean; rm -rf /var/lib/apt/lists/*
-  50 |     # 4) Remove build-only packages & auto-remove deps to reduce attack surface
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;    VERSION_ID=\"$(. /etc/os-release; echo \"${VERSION_ID}\")\";    CODENAME=\"$(. /etc/os-release; echo \"${VERSION_CODENAME:-noble}\")\";    mkdir -p /etc/apt/keyrings;    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc      | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;    echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${CODENAME} main\" > /etc/apt/sources.list.d/mssql-release.list;    apt-get update;    ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;    ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;    rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;    apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-Error: Process completed with exit code 1.
+ubuntu:rolling
+eclipse-temurin:latest
 
 
