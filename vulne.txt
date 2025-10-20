@@ -161,14 +161,13 @@ rm -rf "$basedir"
 
 #!/bin/bash
 # Deploy SQL scripts listed in forDeployment.txt using go-sqlcmd
-# Works on Alpine (bash installed), BusyBox tools, and your /usr/local/tomcat layout.
+# Uses mapfile to avoid any infinite loop/EOF edge cases.
 
 set -euo pipefail
 
 basedir="/usr/local/tomcat/bin/database"
 txtfile="${basedir}/forDeployment.txt"
 
-# ---- Env / inputs ----
 URL="${FIS_CYBERARK_URL:-}"
 KEY1="${FIS_CYBERARK_APPID:-}"
 KEY2="${FIS_CYBERARK_SAFE:-}"
@@ -178,7 +177,7 @@ Server="${FIS_DB_HOST:-}"
 Database="${FIS_DB_NAME:-}"
 CyberarkEnable="${FIS_CYBERARK_ENABLE:-false}"
 
-# Build JSON payload (no jq needed)
+# Build JSON payload
 read -r -d '' DATA <<EOF || true
 {
  "appID": "${KEY1}",
@@ -190,7 +189,6 @@ EOF
 # ---- Resolve credentials ----
 if [[ "${CyberarkEnable}" == "false" ]]; then
   Username="${FIS_DB_USER:-}"
-  # FIS_DB_PASS may be a file path or a literal
   if [[ -n "${FIS_DB_PASS:-}" && -f "${FIS_DB_PASS}" ]]; then
     Password="$(cat "${FIS_DB_PASS}")"
   else
@@ -198,9 +196,10 @@ if [[ "${CyberarkEnable}" == "false" ]]; then
   fi
 else
   Username="${FIS_CYBERARK_USER:-}"
-  CONTENT_TYPE_HEADER1="Accept: application/json"
-  CONTENT_TYPE_HEADER2="Content-Type: application/json"
-  response="$(curl -s -X POST -H "$CONTENT_TYPE_HEADER1" -H "$CONTENT_TYPE_HEADER2" -d "$DATA" "$URL")"
+  response="$(curl -s -X POST \
+    -H 'Accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d "$DATA" "$URL")"
   # BusyBox-friendly sed (no -E)
   Password="$(echo "$response" | sed -n 's/.*"content":"\([^"]*\)".*/\1/p')"
   errorMessage="$(echo "$response" | sed -n 's/.*"errorMessage":"\([^"]*\)".*/\1/p' || true)"
@@ -220,17 +219,22 @@ if [[ -z "${Server}" || -z "${Database}" || -z "${Username}" || -z "${Password}"
   exit 1
 fi
 
-# ---- Nothing to deploy? ----
+# ---- Load deployment targets (CRLF-safe) ----
 if [[ ! -s "$txtfile" ]]; then
   echo "No SQL script to deploy"
   exit 0
 fi
 
-# Normalize CRLF and ensure trailing newline so the simple loop ends cleanly
-sed -i -e 's/\r$//' -e '$a\' "$txtfile"
+# strip Windows CR and read lines into array
+mapfile -t lines < <(sed 's/\r$//' "$txtfile")
 
-# ---- Process each target line-by-line ----
-while IFS= read -r forDeployment; do
+# If file only has: 
+# 0009_Test1
+# 0010_Test2
+# ...then lines=([0]="0009_Test1" [1]="0010_Test2")
+
+# ---- Iterate once per line, then exit ----
+for forDeployment in "${lines[@]}"; do
   # skip empty/comment lines
   [[ -z "$forDeployment" || "$forDeployment" =~ ^# ]] && continue
 
@@ -238,13 +242,12 @@ while IFS= read -r forDeployment; do
   dir="${basedir}/${forDeployment}"
 
   if [[ -d "$dir" ]]; then
-    # Run check; do not fail the whole script if the query prints warnings
+    # Check deployment status; don't fail on warnings
     IsDeployed="$(
       sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
         -Q "EXEC DBO.DEPLOYMENT_CHECK '$forDeployment' ; " -h -1 -W 2>&1 || true
     )"
 
-    # Decide if we need to deploy (adjust to your proc semantics)
     needs_deploy="no"
     [[ "$IsDeployed" == "0" ]] && needs_deploy="yes"
     [[ "$IsDeployed" == *"stored procedure"* ]] && needs_deploy="yes"
@@ -276,10 +279,11 @@ while IFS= read -r forDeployment; do
   else
     echo "SQL script directory does not exist: $dir"
   fi
-done < "$txtfile"
+done
 
 # ---- Optional cleanup (keep if intended) ----
 rm -rf "$basedir"
+
 
 
 
