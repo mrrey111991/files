@@ -160,16 +160,25 @@ rm -rf "$basedir"
 
 
 #!/bin/bash
+# Deploy SQL scripts listed in forDeployment.txt using go-sqlcmd
+# Works on Alpine (bash installed), BusyBox tools, and your /usr/local/tomcat layout.
+
 set -euo pipefail
 
 basedir="/usr/local/tomcat/bin/database"
 txtfile="${basedir}/forDeployment.txt"
 
+# ---- Env / inputs ----
 URL="${FIS_CYBERARK_URL:-}"
 KEY1="${FIS_CYBERARK_APPID:-}"
 KEY2="${FIS_CYBERARK_SAFE:-}"
 KEY3="${FIS_CYBERARK_OBJ:-}"
 
+Server="${FIS_DB_HOST:-}"
+Database="${FIS_DB_NAME:-}"
+CyberarkEnable="${FIS_CYBERARK_ENABLE:-false}"
+
+# Build JSON payload (no jq needed)
 read -r -d '' DATA <<EOF || true
 {
  "appID": "${KEY1}",
@@ -178,13 +187,10 @@ read -r -d '' DATA <<EOF || true
 }
 EOF
 
-Server="${FIS_DB_HOST:-}"
-Database="${FIS_DB_NAME:-}"
-
-if [[ "${FIS_CYBERARK_ENABLE:-false}" == "false" ]]; then
-	
+# ---- Resolve credentials ----
+if [[ "${CyberarkEnable}" == "false" ]]; then
   Username="${FIS_DB_USER:-}"
-  # If FIS_DB_PASS is a file path, read it; else treat literal value.
+  # FIS_DB_PASS may be a file path or a literal
   if [[ -n "${FIS_DB_PASS:-}" && -f "${FIS_DB_PASS}" ]]; then
     Password="$(cat "${FIS_DB_PASS}")"
   else
@@ -195,7 +201,7 @@ else
   CONTENT_TYPE_HEADER1="Accept: application/json"
   CONTENT_TYPE_HEADER2="Content-Type: application/json"
   response="$(curl -s -X POST -H "$CONTENT_TYPE_HEADER1" -H "$CONTENT_TYPE_HEADER2" -d "$DATA" "$URL")"
-  # BusyBox-friendly sed (no -E). Extract fields if present.
+  # BusyBox-friendly sed (no -E)
   Password="$(echo "$response" | sed -n 's/.*"content":"\([^"]*\)".*/\1/p')"
   errorMessage="$(echo "$response" | sed -n 's/.*"errorMessage":"\([^"]*\)".*/\1/p' || true)"
 fi
@@ -204,75 +210,26 @@ fi
 [[ -n "${errorMessage:-}" ]] && echo "CyberArk error: $errorMessage"
 echo
 
+# ---- Quick validations ----
+if ! command -v sqlcmd >/dev/null 2>&1; then
+  echo "ERROR: sqlcmd not found on PATH" >&2
+  exit 1
+fi
+if [[ -z "${Server}" || -z "${Database}" || -z "${Username}" || -z "${Password}" ]]; then
+  echo "ERROR: Missing DB connection variables (host/db/user/pass)." >&2
+  exit 1
+fi
+
+# ---- Nothing to deploy? ----
 if [[ ! -s "$txtfile" ]]; then
   echo "No SQL script to deploy"
   exit 0
 fi
 
-# Read targets line-by-line (preserves spaces)
-while IFS= read -r forDeployment || [[ -n "$forDeployment" ]]; do
-  # skip empty/comment lines
-  [[ -z "$forDeployment" ]] && continue
-  [[ "$forDeployment" =~ ^# ]] && continue
-
-  echo "Target set: $forDeployment"
-  dir="${basedir}/${forDeployment}"
-
-  if [[ -d "$dir" ]]; then
-    # Run check; don't fail the script if the query prints warnings
-    IsDeployed="$(
-      sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
-        -Q "EXEC DBO.DEPLOYMENT_CHECK '$forDeployment' ; " -h -1 -W 2>&1 || true
-    )"
-
-    needs_deploy="yes"
-    # adjust logic if your proc returns different semantics
-    if [[ "$IsDeployed" == "0" ]]; then
-      needs_deploy="yes"
-    elif [[ "$IsDeployed" == *"stored procedure"* ]]; then
-      needs_deploy="yes"
-    fi
-
-    if [[ "$needs_deploy" == "yes" ]]; then
-      echo "Deploying script(s)..."
-      shopt -s nullglob
-      files=( "$dir"/*.sql )
-      if (( ${#files[@]} == 0 )); then
-        echo "No .sql files found under $dir"
-															   
-													  
-				   
-      else
-        for file in "${files[@]}"; do
-          echo ">>>>>> $file"
-          sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" -i "$file"
-        done
-        sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
-          -Q "EXEC DBO.DEPLOYMENT_UPDATE '$forDeployment', true"
-        echo "SQL script(s) successfully deployed."
-      fi
-      echo
-      shopt -u nullglob
-    else
-      echo "This update was already deployed."
-      echo
-    fi
-	  
-  else
-    echo "SQL script directory does not exist: $dir"
-  fi
-done < "$txtfile"
-
-# Optional cleanup (keep if intentional)
-rm -rf "$basedir"
-
-
-
-
-# --- read forDeployment.txt safely (no infinite loop) ---
-# Normalize CRLF and ensure trailing newline so the simple loop ends
+# Normalize CRLF and ensure trailing newline so the simple loop ends cleanly
 sed -i -e 's/\r$//' -e '$a\' "$txtfile"
 
+# ---- Process each target line-by-line ----
 while IFS= read -r forDeployment; do
   # skip empty/comment lines
   [[ -z "$forDeployment" || "$forDeployment" =~ ^# ]] && continue
@@ -281,11 +238,13 @@ while IFS= read -r forDeployment; do
   dir="${basedir}/${forDeployment}"
 
   if [[ -d "$dir" ]]; then
+    # Run check; do not fail the whole script if the query prints warnings
     IsDeployed="$(
       sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
         -Q "EXEC DBO.DEPLOYMENT_CHECK '$forDeployment' ; " -h -1 -W 2>&1 || true
     )"
 
+    # Decide if we need to deploy (adjust to your proc semantics)
     needs_deploy="no"
     [[ "$IsDeployed" == "0" ]] && needs_deploy="yes"
     [[ "$IsDeployed" == *"stored procedure"* ]] && needs_deploy="yes"
@@ -293,15 +252,22 @@ while IFS= read -r forDeployment; do
     if [[ "$needs_deploy" == "yes" ]]; then
       echo "Deploying script(s)..."
       shopt -s nullglob
+      found_any="no"
       for file in "$dir"/*.sql; do
         [[ -f "$file" ]] || continue
+        found_any="yes"
         echo ">>>>>> $file"
         sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" -i "$file"
       done
       shopt -u nullglob
-      sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
-        -Q "EXEC DBO.DEPLOYMENT_UPDATE '$forDeployment', true"
-      echo "SQL script(s) successfully deployed."
+
+      if [[ "$found_any" == "yes" ]]; then
+        sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
+          -Q "EXEC DBO.DEPLOYMENT_UPDATE '$forDeployment', true"
+        echo "SQL script(s) successfully deployed."
+      else
+        echo "No .sql files found under $dir"
+      fi
       echo
     else
       echo "This update was already deployed."
@@ -311,6 +277,10 @@ while IFS= read -r forDeployment; do
     echo "SQL script directory does not exist: $dir"
   fi
 done < "$txtfile"
-# --- end block ---
+
+# ---- Optional cleanup (keep if intended) ----
+rm -rf "$basedir"
+
+
 
 
