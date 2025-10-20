@@ -76,86 +76,77 @@ openssl 3.0.13-0ubuntu3.6
 locales 2.39-0ubuntu8.6
 expat 2.6.1-2ubuntu0.3
 
-#19 63.71   Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out
-#19 63.71 Err:10 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-#19 63.71   Unable to connect to archive.ubuntu.com:80:
-#19 63.71 Err:11 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-#19 63.71   Unable to connect to archive.ubuntu.com:80:
-#19 63.72 Fetched 5,429 kB in 1min 3s (85.7 kB/s)
-#19 63.72 Reading package lists...
-#19 63.89 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to archive.ubuntu.com:80 (185.125.190.83), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.82), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.39), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.82), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.83), connection timed out Could not connect to archive.ubuntu.com:80 (91.189.91.81), connection timed out Could not connect to archive.ubuntu.com:80 (185.125.190.36), connection timed out
-#19 63.89 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to archive.ubuntu.com:80:
-#19 63.89 W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to archive.ubuntu.com:80:
-#19 63.89 W: Some index files failed to download. They have been ignored, or old ones used instead.
-#19 63.89 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 63.89 + apt-get install -y --no-install-recommends libltdl7 unixodbc
-#19 63.90 Reading package lists...
-#19 64.06 Building dependency tree...
-#19 64.07 Reading state information...
-#19 64.08 Package libltdl7 is not available, but is referred to by another package.
-#19 64.08 This may mean that the package is missing, has been obsoleted, or
-#19 64.08 is only available from another source
-#19 64.08 
-#19 64.08 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-#19 64.08 E: Package 'libltdl7' has no installation candidate
-#19 ERROR: process "/bin/sh -c set -eux;   . /etc/os-release;   mkdir -p /etc/apt/keyrings;   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc     | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;   echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main\"     > /etc/apt/sources.list.d/mssql-release.list;   apt-get -o Acquire::Retries=5 update;   apt-get install -y --no-install-recommends libltdl7 unixodbc;   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;   ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;   rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;   apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-------
- > [stage-1  4/12] RUN set -eux;   . /etc/os-release;   mkdir -p /etc/apt/keyrings;   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc     | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main"     > /etc/apt/sources.list.d/mssql-release.list;   apt-get -o Acquire::Retries=5 update;   apt-get install -y --no-install-recommends libltdl7 unixodbc;   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;   ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;   rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;   apt-get clean; rm -rf /var/lib/apt/lists/*:
-64.08 
-64.08 W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (universe/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (universe/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (restricted/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (restricted/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (multiverse/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 W: Target Packages (multiverse/binary-all/Packages) is configured multiple times in /etc/apt/sources.list:5 and /etc/apt/sources.list.d/ubuntu.sources:2
-64.08 E: Package 'libltdl7' has no installation candidate
-------
 
- 1 warning found (use docker --debug to expand):
- - FromAsCasing: 'as' and 'FROM' keywords' casing do not match (line 2)
-Dockerfile:34
---------------------
-  33 |     # 3) Install Microsoft tools18, then remove the repo & keys
-  34 | >>> RUN set -eux; \
-  35 | >>>   . /etc/os-release; \
-  36 | >>>   mkdir -p /etc/apt/keyrings; \
-  37 | >>>   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-  38 | >>>     | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg; \
-  39 | >>>   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main" \
-  40 | >>>     > /etc/apt/sources.list.d/mssql-release.list; \
-  41 | >>>   apt-get -o Acquire::Retries=5 update; \
-  42 | >>>   apt-get install -y --no-install-recommends libltdl7 unixodbc; \
-  43 | >>>   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18; \
-  44 | >>>   ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd; \
-  45 | >>>   # Remove MS repo & keys to avoid repo CVEs
-  46 | >>>   rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg; \
-  47 | >>>   apt-get clean; rm -rf /var/lib/apt/lists/*
-  48 |     
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;   . /etc/os-release;   mkdir -p /etc/apt/keyrings;   curl -fsSL https://packages.microsoft.com/keys/microsoft.asc     | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg;   echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/ubuntu/${VERSION_ID}/prod ${VERSION_CODENAME:-noble} main\"     > /etc/apt/sources.list.d/mssql-release.list;   apt-get -o Acquire::Retries=5 update;   apt-get install -y --no-install-recommends libltdl7 unixodbc;   ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools18;   ln -sf /opt/mssql-tools18/bin/sqlcmd /usr/local/bin/sqlcmd;   rm -f /etc/apt/sources.list.d/mssql-release.list /etc/apt/keyrings/microsoft.gpg;   apt-get clean; rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
-Error: Process completed with exit code 1.
 
+
+#!/bin/sh
+
+basedir="/usr/local/tomcat/bin/database/"
+txtfile="/usr/local/tomcat/bin/database/forDeployment.txt"
+
+URL="${FIS_CYBERARK_URL}"
+KEY1="${FIS_CYBERARK_APPID}"
+KEY2="${FIS_CYBERARK_SAFE}"
+KEY3="${FIS_CYBERARK_OBJ}"
+
+DATA=$(cat <<EOF
+{
+ "appID": "$KEY1",
+ "safe": "$KEY2",
+ "objectName": "$KEY3"
+}
+EOF
+)
+Server="${FIS_DB_HOST}"
+Database="${FIS_DB_NAME}"
+if [ "${FIS_CYBERARK_ENABLE}" = false ]
+then
+  Username="${FIS_DB_USER}"
+  Password=$(cat "${FIS_DB_PASS}")
+else
+  Username="${FIS_CYBERARK_USER}"
+  CONTENT_TYPE_HEADER1="Accept: application/json"
+  CONTENT_TYPE_HEADER2="Content-Type: application/json"
+  response=$(curl -s -X POST -H "$CONTENT_TYPE_HEADER1" -H "$CONTENT_TYPE_HEADER2" -d "$DATA" "$URL")
+  Password=$(echo "$response" | grep -o '"content":"[^"]*"' | sed -E 's/"content":"(.*)"/\1/')
+  errorMessage=$(echo "$response" | grep -o '"errorMessage":"[^"]*"' | sed -E 's/"errorMessage":"(.*)"/\1/')
+fi
+
+echo $Username
+echo $errorMessage
+echo ""
+
+if [ -s "$txtfile" ]; then
+  for line in $(cat "$txtfile")
+  do
+    forDeployment=$(echo "$line" | sed ':a;N;$!ba;s/\n//g')
+    echo "$forDeployment"
+    if [ -d "$basedir$forDeployment" ]; then
+      IsDeployed=$(sqlcmd -S $Server -d $Database -U $Username -P $Password -Q "
+      EXEC DBO.DEPLOYMENT_CHECK '$forDeployment' ; " -h -1 -W)
+      #echo "$IsDeployed"
+      if [ "$IsDeployed" == "0" ] || [[ "$IsDeployed" == *"stored procedure"* ]]; then
+        echo "Deploying script/s.... "
+        for file in "$basedir$forDeployment"/*.sql; do
+         if [[ -f "$file" ]]; then
+            echo  ">>>>>>$file"
+            sqlcmd -S $Server -d $Database -U $Username -P $Password -i "$file"
+         fi
+        done
+        sqlcmd -S $Server -d $Database -U $Username -P $Password -Q "
+            EXEC DBO.DEPLOYMENT_UPDATE '$forDeployment', true "
+            echo "SQL script/s successfully deployed."
+            echo ""
+      else
+          echo "This update was already deployed."
+          echo ""
+      fi
+    else
+      echo "SQL script Directory does not exists"
+    fi
+  done
+else
+  echo "No SQL script to deploy"
+fi
+
+rm -rf "$basedir"
