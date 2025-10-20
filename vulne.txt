@@ -266,3 +266,51 @@ done < "$txtfile"
 # Optional cleanup (keep if intentional)
 rm -rf "$basedir"
 
+
+
+
+# --- read forDeployment.txt safely (no infinite loop) ---
+# Normalize CRLF and ensure trailing newline so the simple loop ends
+sed -i -e 's/\r$//' -e '$a\' "$txtfile"
+
+while IFS= read -r forDeployment; do
+  # skip empty/comment lines
+  [[ -z "$forDeployment" || "$forDeployment" =~ ^# ]] && continue
+
+  echo "Target set: $forDeployment"
+  dir="${basedir}/${forDeployment}"
+
+  if [[ -d "$dir" ]]; then
+    IsDeployed="$(
+      sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
+        -Q "EXEC DBO.DEPLOYMENT_CHECK '$forDeployment' ; " -h -1 -W 2>&1 || true
+    )"
+
+    needs_deploy="no"
+    [[ "$IsDeployed" == "0" ]] && needs_deploy="yes"
+    [[ "$IsDeployed" == *"stored procedure"* ]] && needs_deploy="yes"
+
+    if [[ "$needs_deploy" == "yes" ]]; then
+      echo "Deploying script(s)..."
+      shopt -s nullglob
+      for file in "$dir"/*.sql; do
+        [[ -f "$file" ]] || continue
+        echo ">>>>>> $file"
+        sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" -i "$file"
+      done
+      shopt -u nullglob
+      sqlcmd -S "$Server" -d "$Database" -U "$Username" -P "$Password" \
+        -Q "EXEC DBO.DEPLOYMENT_UPDATE '$forDeployment', true"
+      echo "SQL script(s) successfully deployed."
+      echo
+    else
+      echo "This update was already deployed."
+      echo
+    fi
+  else
+    echo "SQL script directory does not exist: $dir"
+  fi
+done < "$txtfile"
+# --- end block ---
+
+
