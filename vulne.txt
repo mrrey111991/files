@@ -77,3 +77,72 @@ expat 2.6.1-2ubuntu0.3
 medium
 github.com/mitchellh/mapstructure:v1.5.0 CVE-2025-52893
 github.com/docker/docker:v27.3.1+incompatible CVE-2025-54410
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<%@ page import="java.util.HashMap" %>
+<%
+
+    HashMap basePathConfig = (HashMap)com.Ga31.manager.BaseManager.getConfig().get("basePathConfig");
+    HashMap settings = (HashMap)com.Ga31.manager.BaseManager.getConfig().get("settings");
+
+	String path = request.getContextPath();
+	String Scheme = ((Boolean)basePathConfig.get("UseHostScheme")) ? request.getScheme() : (String)basePathConfig.get("CustomScheme");
+    String port = ((Boolean)basePathConfig.get("UseHostPort")) ? ":"+request.getServerPort() : ((String)basePathConfig.get("CustomPort")=="") ? "" : ":"+(String)basePathConfig.get("CustomPort");
+
+	String basePath = Scheme+"://"+request.getServerName()+port+path+"/";
+	int maxInterval = request.getSession().getMaxInactiveInterval();
+    String appVersion = (String)settings.get("app.version");
+
+    com.Ga31.util.JSON json = new com.Ga31.util.JSON();
+
+	Object user = session.getAttribute("user");
+	String sessionData = json.marshall(user);
+
+	String startpath = null;
+
+    if (session.getAttribute("startpath") != null) {
+        startpath = (String)session.getAttribute("startpath");
+        session.removeAttribute("startpath");
+    }
+
+%>
+	<base href="<%=basePath%>">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" href="resources/custom/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="resources/custom/favicon.ico" type="image/x-icon">
+    <title id="page-title">PRULIFE | Finance Investment System Hub</title>
+
+	<link rel="stylesheet" type="text/css" href="resources/ext-theme-gray/ext-theme-gray-all.css">
+	<link rel="stylesheet" type="text/css" href="resources/custom/app-custom.css" />
+	
+    <script type="text/javascript" src="js/lib/moment/moment.min.js"></script>
+    <script type="text/javascript" src="js/lib/moment/momentjs-business.js"></script>
+    <script type="text/javascript" src="js/lib/crypto-js/crypto-js.js"></script>
+    <script type="text/javascript" src="js/lib/ext-all-debug.js"></script>
+    <script type="text/javascript" src="js/lib/tea.js"></script>
+    <script type="text/javascript" src="js/lib/livepool.js"></script>
+    <script type="text/javascript" src="js/Ga31/system.js"></script>
+	<script type="text/javascript">
+		function isFrameworkInTestMode(){
+			return false;
+		}
+		function setEnvironmentVars(){
+			Ga31.remoting.STARTUP_PATH = "<%=startpath%>";
+			Ga31.remoting.SESSION_DATA = <%=sessionData%>;
+			Ga31.remoting.MAX_INTERVAL = <%=maxInterval%>;
+			Ga31.remoting.WEBAPP_BASE = "<%=basePath%>";
+			Ga31.remoting.GATEWAY_URL = 'Main.gate';
+			Ga31.remoting.APP_VER =  "<%=appVersion%>";
+		}
+	</script>
+</head>
+<body>
+</body>
+</html>
+
+
