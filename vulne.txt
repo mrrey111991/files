@@ -146,3 +146,13 @@ github.com/docker/docker:v27.3.1+incompatible CVE-2025-54410
 </html>
 
 
+
+ext-all-debug.js:9392 [W] Panel panel-1024 is a region section of the application, but it does not have a title. Per WAI-ARIA, all regions should have a heading element that contains region's title.
+ext-all-debug.js:9397 
+constructor
+ext-all-debug.js:9392 [W] [Ext.Loader] Synchronously loading 'apps.core.StartupApp'; consider adding Ext.require('apps.core.StartupApp') above Ext.onReady
+ext-all-debug.js:9392 [W] [Ext.Loader] Synchronously loading 'apps.core.forms.LoginForm'; consider adding Ext.require('apps.core.forms.LoginForm') above Ext.onReady
+Config.js?_dc=1761805546474:291 apps.core.forms.HomeForm 
+Object
+ core-content
+ext-all-debug.js:9392 [W] [Ext.Loader] Synchronously loading 'apps.core.forms.HomeForm'; consider adding Ext.require('apps.core.forms.HomeForm') above Ext.onReady
