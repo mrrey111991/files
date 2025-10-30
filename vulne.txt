@@ -179,6 +179,19 @@ TaskListForm.js:35 Uncaught TypeError: Cannot read properties of undefined (read
     at constructor.flushLoad (ext-all-debug.js:88423:23)
     at ext-all-debug.js:6877:35
     at ext-all-debug.js:7484:17
-﻿
+
+
+
+WelcomeForm.js:34 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at constructor.handler (WelcomeForm.js:34:27)
+    at constructor.doRequest (ServiceProxy.js?_dc=1761806794582:6:8)
+    at constructor.read (ext-all-debug.js:89438:31)
+    at constructor.doExecute (ext-all-debug.js:80808:32)
+    at constructor.execute (ext-all-debug.js:80475:35)
+    at constructor.flushLoad (ext-all-debug.js:88423:23)
+    at ext-all-debug.js:6877:35
+    at ext-all-debug.js:7484:17
+
+
 
 
