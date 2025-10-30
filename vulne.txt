@@ -193,5 +193,39 @@ WelcomeForm.js:34 Uncaught TypeError: Cannot read properties of undefined (readi
     at ext-all-debug.js:7484:17
 
 
+handler: function(operation, callback, context){
+					var sort = 'reportdate';
+					var dir = 'DESC';
+					if(operation.sorters.length>0){
+						sort = operation.sorters[0].property;
+						dir = operation.sorters[0].direction;
+					}
+					
+					var params = operation.params;
+					
+					var scope = Ga31.getForm('apps.nmentries.forms.WelcomeForm');	
+					
+					Ga31.getViewport().getComponent('core-content').setLoading(true);
+					
+					var vo = scope.getValues();
+					
+					vo.start = operation.start;
+					vo.limit = operation.limit;
+					vo.sort = sort;
+					vo.dir = dir;
+					
+					Ga31.Service.invoke(
+						'apps.nmentries.managers.NMEntriesManager.getNMEntriesByPage',
+						[vo],
+						function(p){
+							if(p.success){
+								context.proxy.process(p, operation, callback, context);
+							}else{
+								context.proxy.process(p, operation, callback, context);
+							}
+							Ga31.getViewport().getComponent('core-content').setLoading(false);
+						}
+					);
+				}
 
 
