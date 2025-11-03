@@ -229,3 +229,18 @@ handler: function(operation, callback, context){
 				}
 
 
+
+
+
+Hi Platform team,
+
+Requesting for Topic credentials for FISH PROD email sending:
+
+cluster: z8j02d
+Topic: GX777L_UCP_AZ1_EmailStartTopicV2
+
+Requested Values for:
+- App ID
+- API URL
+- API Key
+- API Secret
